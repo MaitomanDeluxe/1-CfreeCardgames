@@ -9,6 +9,8 @@
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(145deg, #f8f9fa, #e0f7fa);
       overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 0.6s ease;
     }
 
     h1 {
@@ -18,7 +20,6 @@
     }
 
     #pack-select {
-      display: block;
       text-align: center;
       margin-top: 60px;
     }
@@ -43,16 +44,16 @@
     .pack-button.blue { background: dodgerblue; }
 
     #pack {
-      margin-top: 50px;
+      margin-top: 40px;
       display: flex;
       justify-content: center;
       position: relative;
-      height: 360px;
+      height: 460px;
     }
 
     .card-container {
       position: absolute;
-      transition: transform 0.5s ease, top 0.5s ease;
+      transition: transform 0.5s ease, top 0.5s ease, opacity 0.4s ease;
       cursor: pointer;
     }
 
@@ -180,10 +181,81 @@
     let flippedCount = 0;
     let zIndexCounter = 1000;
 
+    window.addEventListener('load', () => {
+      preloadImages([
+        './images/card-back-r.png', './images/card-back-b.png',
+        './images/1.png','./images/2.png','./images/3.png','./images/4.png',
+        './images/5.png','./images/6.png','./images/7.png','./images/8.png',
+        './images/9.png','./images/10.png'
+      ], () => {
+        document.body.style.opacity = 1;
+      });
+    });
+
+    function preloadImages(urls, callback) {
+      let loaded = 0;
+      const total = urls.length;
+      urls.forEach(url => {
+        const img = new Image();
+        img.onload = () => {
+          loaded++;
+          if (loaded === total) callback();
+        };
+        img.src = url;
+      });
+    }
+
     function selectPack(type) {
       currentPackBack = type;
       packSelect.style.display = 'none';
-      loadCards();
+      showRotatingPacks();
+    }
+
+    function showRotatingPacks() {
+      const total = 12;
+      const radius = 200;
+      pack.innerHTML = '';
+
+      for (let i = 0; i < total; i++) {
+        const angle = (2 * Math.PI / total) * i;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+
+        const container = document.createElement('div');
+        container.className = 'card-container';
+        container.style.transform = `translate(${x}px, ${y}px)`;
+        container.style.transition = 'transform 0.6s ease';
+        container.style.zIndex = 500 - i;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        const inner = document.createElement('div');
+        inner.className = 'card-inner';
+
+        const back = document.createElement('div');
+        back.className = 'card-face card-back';
+        const backImg = document.createElement('img');
+        backImg.src = `./images/card-back-${currentPackBack}.png`;
+        back.appendChild(backImg);
+
+        inner.appendChild(back);
+        card.appendChild(inner);
+        container.appendChild(card);
+        pack.appendChild(container);
+      }
+
+      setTimeout(() => {
+        const centerCard = pack.children[0];
+        for (let i = 1; i < pack.children.length; i++) {
+          pack.children[i].style.opacity = '0';
+        }
+        centerCard.style.transform = 'translate(0px, 0px)';
+        centerCard.style.cursor = 'pointer';
+        centerCard.addEventListener('click', () => {
+          loadCards();
+        });
+        centerCard.classList.add('rare-card');
+      }, 800);
     }
 
     function loadCards() {
@@ -231,7 +303,7 @@
           if (!card.classList.contains('flipped')) {
             card.classList.add('flipped');
             setTimeout(() => {
-              if (num === 1 || num === 2) {
+              if (num === 9 || num === 10) {
                 container.classList.add('rare-card');
               }
               saveToHistory(num);
