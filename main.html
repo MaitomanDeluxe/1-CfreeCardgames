@@ -6,21 +6,21 @@
   <style>
     body {
       margin: 0;
-      overflow-x: hidden;
+      overflow: hidden;
+      background: linear-gradient(145deg, #f8f9fa, #e0f7fa);
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #fdfbfb, #ebedee);
     }
 
     h1 {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 30px;
       font-size: 2.5em;
     }
 
-    #carousel-container {
+    #carousel-wrapper {
       perspective: 1200px;
       width: 100%;
-      height: 400px;
+      height: 500px;
       position: relative;
       display: flex;
       justify-content: center;
@@ -28,11 +28,11 @@
     }
 
     #carousel {
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform 1s;
+      width: 300px;
+      height: 300px;
       position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s ease;
     }
 
     .pack {
@@ -44,142 +44,153 @@
       margin: -90px 0 0 -60px;
       background-size: cover;
       background-position: center;
-      transition: transform 0.5s ease, opacity 0.5s ease;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transform-style: preserve-3d;
       cursor: pointer;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      border: 3px solid transparent;
+      transition: transform 0.3s;
     }
 
-    .pack.selected {
-      transform: scale(1.2);
-      border-color: gold;
+    .pack.highlight {
+      box-shadow: 0 0 20px 8px gold;
+      transform: scale(1.2) !important;
       z-index: 1000;
     }
 
-    #open-button {
-      display: none;
-      margin: 30px auto;
-      font-size: 22px;
-      padding: 14px 28px;
-      background: #0078ff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    #instruction {
+      text-align: center;
+      font-size: 1.2em;
+      margin-top: 10px;
+      color: #333;
     }
 
-    #card-area {
+    #open-section {
       display: none;
-      margin-top: 50px;
       text-align: center;
+      margin-top: 50px;
     }
 
     .card {
-      width: 260px;
-      height: 360px;
-      margin: 0 auto;
+      display: inline-block;
+      width: 180px;
+      height: 260px;
+      margin: 0 10px;
       background-size: cover;
       background-position: center;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: transform 0.4s;
     }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
   </style>
 </head>
 <body>
+  <h1>ポケカ開封シミュレーター</h1>
+  <div id="instruction">← または → キーで回転、中央をクリックで開封</div>
+  <div id="carousel-wrapper">
+    <div id="carousel"></div>
+  </div>
 
-<h1>ポケカ開封シミュレーター</h1>
+  <div id="open-section">
+    <h2>選んだパックからカードを開封！</h2>
+    <div id="card-area"></div>
+  </div>
 
-<div id="carousel-container">
-  <div id="carousel"></div>
-</div>
-<button id="open-button">このパックを開封！</button>
+  <script>
+    const carousel = document.getElementById('carousel');
+    const cardArea = document.getElementById('card-area');
+    const openSection = document.getElementById('open-section');
+    const NUM_PACKS = 8;
+    let angle = 0;
+    let selectedIndex = 0;
+    const rotateStep = 360 / NUM_PACKS;
+    const packs = [];
 
-<div id="card-area">
-  <h2>あなたのカード</h2>
-  <div class="card" id="opened-card"></div>
-</div>
+    // 画像読み込み（ダミー or 実画像に差し替えてください）
+    const packImages = Array(NUM_PACKS).fill(0).map((_, i) =>
+      `./images/card-back-${i % 2 === 0 ? 'r' : 'b'}.png`
+    );
 
-<script>
-  const carousel = document.getElementById('carousel');
-  const openButton = document.getElementById('open-button');
-  const cardArea = document.getElementById('card-area');
-  const openedCard = document.getElementById('opened-card');
+    function setupCarousel() {
+      for (let i = 0; i < NUM_PACKS; i++) {
+        const pack = document.createElement('div');
+        pack.className = 'pack';
+        const theta = i * rotateStep;
+        pack.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
+        pack.style.backgroundImage = `url(${packImages[i]})`;
+        carousel.appendChild(pack);
+        packs.push(pack);
 
-  const packImages = [
-    'images/card-back-r.png',
-    'images/card-back-b.png',
-    'images/card-back-r.png',
-    'images/card-back-b.png',
-    'images/card-back-r.png',
-    'images/card-back-b.png'
-  ];
-
-  let angle = 0;
-  let selectedIndex = 0;
-
-  function createCarousel() {
-    const len = packImages.length;
-    const degStep = 360 / len;
-
-    for (let i = 0; i < len; i++) {
-      const pack = document.createElement('div');
-      pack.className = 'pack';
-      pack.style.backgroundImage = `url(${packImages[i]})`;
-      const theta = i * degStep;
-      const radius = 300;
-      const x = radius * Math.sin(theta * Math.PI / 180);
-      const z = radius * Math.cos(theta * Math.PI / 180);
-      pack.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${theta}deg)`;
-      pack.dataset.index = i;
-      pack.addEventListener('click', () => selectPack(i));
-      carousel.appendChild(pack);
+        pack.addEventListener('click', () => {
+          if (i === selectedIndex) {
+            openPack(i);
+          } else {
+            rotateTo(i);
+          }
+        });
+      }
+      updateHighlight();
     }
 
-    updateSelection();
-  }
-
-  function rotateCarousel(dir) {
-    const total = packImages.length;
-    selectedIndex = (selectedIndex + dir + total) % total;
-    angle = selectedIndex * -60;
-    carousel.style.transform = `translateZ(-300px) rotateY(${angle}deg)`;
-    updateSelection();
-  }
-
-  function updateSelection() {
-    const packs = document.querySelectorAll('.pack');
-    packs.forEach(p => p.classList.remove('selected'));
-    const selected = packs[selectedIndex];
-    if (selected) {
-      selected.classList.add('selected');
+    function rotateTo(index) {
+      selectedIndex = index;
+      angle = -rotateStep * index;
+      carousel.style.transform = `rotateY(${angle}deg)`;
+      updateHighlight();
     }
-    openButton.style.display = 'block';
-  }
 
-  function selectPack(index) {
-    selectedIndex = index;
-    angle = selectedIndex * -60;
-    carousel.style.transform = `translateZ(-300px) rotateY(${angle}deg)`;
-    updateSelection();
-  }
+    function updateHighlight() {
+      packs.forEach((p, i) => {
+        if (i === selectedIndex) {
+          p.classList.add('highlight');
+        } else {
+          p.classList.remove('highlight');
+        }
+      });
+    }
 
-  openButton.addEventListener('click', () => {
-    // フェードアウト
-    document.getElementById('carousel-container').style.display = 'none';
-    openButton.style.display = 'none';
+    function openPack(index) {
+      document.getElementById('carousel-wrapper').style.display = 'none';
+      document.getElementById('instruction').style.display = 'none';
+      openSection.style.display = 'block';
 
-    // カードを表示
-    cardArea.style.display = 'block';
+      // カード3枚表示（ランダム）
+      cardArea.innerHTML = '';
+      const cards = getRandomCards(3);
+      cards.forEach(num => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.backgroundImage = `url(./images/${num}.png)`;
+        cardArea.appendChild(card);
+      });
+    }
 
-    // ランダムカード
-    const randCard = Math.floor(Math.random() * 10) + 1;
-    openedCard.style.backgroundImage = `url(images/${randCard}.png)`;
-  });
+    function getRandomCards(n) {
+      const pool = [1,2,3,4,5,6,7,8,9,10];
+      const result = [];
+      while (result.length < n) {
+        const r = pool[Math.floor(Math.random() * pool.length)];
+        if (!result.includes(r)) result.push(r);
+      }
+      return result;
+    }
 
-  createCarousel();
-</script>
+    // キーボード操作
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        selectedIndex = (selectedIndex - 1 + NUM_PACKS) % NUM_PACKS;
+        rotateTo(selectedIndex);
+      } else if (e.key === 'ArrowRight') {
+        selectedIndex = (selectedIndex + 1) % NUM_PACKS;
+        rotateTo(selectedIndex);
+      }
+    });
 
+    setupCarousel();
+  </script>
 </body>
 </html>
