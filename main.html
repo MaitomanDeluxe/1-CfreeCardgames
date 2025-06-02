@@ -47,13 +47,13 @@
 
     .card-container {
       position: absolute;
-      transition: transform 0.5s ease;
+      transition: transform 0.5s ease, top 0.5s ease;
       cursor: pointer;
     }
 
     .card {
-      width: 220px;
-      height: 300px;
+      width: 260px;
+      height: 360px;
       perspective: 1000px;
     }
 
@@ -92,7 +92,7 @@
     #menu-button {
       position: fixed;
       top: 10px;
-      right: 10px;
+      right: 20px;
       font-size: 28px;
       background: none;
       border: none;
@@ -166,6 +166,7 @@
     function loadCards() {
       cards = [];
       flippedCount = 0;
+      zIndexCounter = 1000;
       pack.innerHTML = '';
 
       const nums = getRandomCards(3);
@@ -174,7 +175,7 @@
         const container = document.createElement('div');
         container.className = 'card-container';
         container.style.top = `${i * 12}px`;
-        container.style.zIndex = zIndexCounter - i;
+        container.style.zIndex = zIndexCounter--;
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -208,15 +209,14 @@
             card.classList.add('flipped');
             setTimeout(() => {
               saveToHistory(num);
-              zIndexCounter--;
-              container.style.zIndex = zIndexCounter;
-              container.style.top = '60px';
+              container.style.zIndex = 0;
+              container.style.top = `${cards.length * 20 + flippedCount * 20}px`;
               flippedCount++;
               if (flippedCount === 3) {
                 setTimeout(() => {
                   pack.innerHTML = '';
                   packSelect.style.display = 'block';
-                }, 800);
+                }, 1000);
               }
             }, 600);
           }
