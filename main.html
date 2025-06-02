@@ -14,7 +14,7 @@
     h1 {
       text-align: center;
       margin-top: 20px;
-      font-size: 2.5em;
+      font-size: 2.8em;
     }
 
     #pack-select {
@@ -24,8 +24,8 @@
     }
 
     .pack-button {
-      font-size: 20px;
-      padding: 12px 30px;
+      font-size: 24px;
+      padding: 14px 36px;
       margin: 20px;
       border: none;
       border-radius: 10px;
@@ -42,7 +42,7 @@
       display: flex;
       justify-content: center;
       position: relative;
-      height: 250px;
+      height: 360px;
     }
 
     .card-container {
@@ -52,8 +52,8 @@
     }
 
     .card {
-      width: 160px;
-      height: 220px;
+      width: 220px;
+      height: 300px;
       perspective: 1000px;
     }
 
@@ -77,10 +77,6 @@
       border-radius: 12px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       overflow: hidden;
-    }
-
-    .card-front, .card-back {
-      background-color: white;
     }
 
     .card-front {
@@ -127,7 +123,7 @@
 
     .history-item {
       margin-bottom: 10px;
-      font-size: 14px;
+      font-size: 16px;
     }
   </style>
 </head>
@@ -159,7 +155,7 @@
     let currentPackBack = 'r';
     let cards = [];
     let flippedCount = 0;
-    let zIndexCounter = 100;
+    let zIndexCounter = 1000;
 
     function selectPack(type) {
       currentPackBack = type;
@@ -177,7 +173,7 @@
       nums.forEach((num, i) => {
         const container = document.createElement('div');
         container.className = 'card-container';
-        container.style.top = `${i * 10}px`;
+        container.style.top = `${i * 12}px`;
         container.style.zIndex = zIndexCounter - i;
 
         const card = document.createElement('div');
@@ -212,7 +208,9 @@
             card.classList.add('flipped');
             setTimeout(() => {
               saveToHistory(num);
-              sendToBack(container);
+              zIndexCounter--;
+              container.style.zIndex = zIndexCounter;
+              container.style.top = '60px';
               flippedCount++;
               if (flippedCount === 3) {
                 setTimeout(() => {
@@ -224,12 +222,6 @@
           }
         });
       });
-    }
-
-    function sendToBack(container) {
-      zIndexCounter--;
-      container.style.zIndex = zIndexCounter;
-      container.style.top = '30px';
     }
 
     function saveToHistory(cardNum) {
