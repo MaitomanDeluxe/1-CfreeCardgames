@@ -76,9 +76,45 @@
       color: white;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: none;
     }
 
-    /* サイドバー */
+    #pack-select {
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    .pack-button {
+      margin: 20px;
+      padding: 20px 30px;
+      font-size: 20px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .red {
+      background: linear-gradient(to right, #ff3c3c, #c40000);
+    }
+
+    .blue {
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+    }
+
+    #menu-button {
+      position: fixed;
+      top: 20px;
+      right: 10px;
+      background: white;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
     #sidebar {
       width: 250px;
       background: #f0f0f0;
@@ -95,18 +131,6 @@
       right: 0;
     }
 
-    #menu-button {
-      position: fixed;
-      top: 20px;
-      right: 10px;
-      background: white;
-      border-radius: 8px;
-      padding: 8px 10px;
-      font-size: 22px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-
     #history {
       margin-top: 20px;
     }
@@ -120,6 +144,13 @@
 <body>
 
 <h1>ポケカ開封シミュレーター</h1>
+
+<div id="pack-select">
+  <h2>パックを選んでください</h2>
+  <button class="pack-button red" onclick="selectPack('r')">赤パック</button>
+  <button class="pack-button blue" onclick="selectPack('b')">青パック</button>
+</div>
+
 <div id="pack"></div>
 <button id="open-button">カードを引く！</button>
 
@@ -139,10 +170,20 @@
   const menuButton = document.getElementById('menu-button');
   const sidebar = document.getElementById('sidebar');
   const history = document.getElementById('history');
+  const packSelect = document.getElementById('pack-select');
   const totalCards = 10;
   const packSize = 3;
+  let selectedPack = null;
+  let backImage = '';
 
   let zIndexCounter = 100;
+
+  function selectPack(type) {
+    selectedPack = type;
+    backImage = type === 'r' ? './images/card-back-r.png' : './images/card-back-b.png';
+    packSelect.style.display = 'none';
+    openButton.style.display = 'block';
+  }
 
   function getRandomCards(count) {
     const cards = [];
@@ -175,7 +216,7 @@
     const back = document.createElement('div');
     back.className = 'card-face card-back';
     const backImg = document.createElement('img');
-    backImg.src = './images/card-back.png';
+    backImg.src = backImage;
     back.appendChild(backImg);
 
     card.appendChild(front);
@@ -195,7 +236,6 @@
         container.style.transform = `translateY(${pack.children.length * 10}px)`;
       }
 
-      // 全部めくったかチェック
       const allFlipped = [...pack.querySelectorAll('.card')].every(c => c.classList.contains('flipped'));
       if (allFlipped && flipped) {
         setTimeout(() => {
