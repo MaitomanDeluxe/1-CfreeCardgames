@@ -6,347 +6,180 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(145deg, #f8f9fa, #e0f7fa);
       overflow-x: hidden;
-      opacity: 0;
-      transition: opacity 0.6s ease;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #fdfbfb, #ebedee);
     }
 
     h1 {
       text-align: center;
       margin-top: 20px;
-      font-size: 2.8em;
+      font-size: 2.5em;
     }
 
-    #pack-select {
-      text-align: center;
-      margin-top: 60px;
+    #carousel-container {
+      perspective: 1200px;
+      width: 100%;
+      height: 400px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    .pack-button {
-      font-size: 24px;
-      padding: 14px 36px;
-      margin: 20px;
+    #carousel {
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+      position: relative;
+    }
+
+    .pack {
+      width: 120px;
+      height: 180px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: -90px 0 0 -60px;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      border: 3px solid transparent;
+    }
+
+    .pack.selected {
+      transform: scale(1.2);
+      border-color: gold;
+      z-index: 1000;
+    }
+
+    #open-button {
+      display: none;
+      margin: 30px auto;
+      font-size: 22px;
+      padding: 14px 28px;
+      background: #0078ff;
+      color: white;
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      color: white;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      transition: transform 0.2s ease;
     }
 
-    .pack-button:hover {
-      transform: scale(1.05);
-    }
-
-    .pack-button.red { background: crimson; }
-    .pack-button.blue { background: dodgerblue; }
-
-    #pack {
-      margin-top: 40px;
-      display: flex;
-      justify-content: center;
-      position: relative;
-      height: 460px;
-    }
-
-    .card-container {
-      position: absolute;
-      transition: transform 0.5s ease, top 0.5s ease, opacity 0.4s ease;
-      cursor: pointer;
+    #card-area {
+      display: none;
+      margin-top: 50px;
+      text-align: center;
     }
 
     .card {
       width: 260px;
       height: 360px;
-      perspective: 1000px;
-    }
-
-    .card-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-      transform-style: preserve-3d;
-    }
-
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-
-    .card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-
-    .card-front {
-      transform: rotateY(180deg);
-    }
-
-    .card-face img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    #menu-button {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      font-size: 28px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      z-index: 1001;
-    }
-
-    #sidebar {
-      position: fixed;
-      top: 0;
-      right: -250px;
-      width: 250px;
-      height: 100%;
-      background: #fff;
-      box-shadow: -2px 0 10px rgba(0,0,0,0.3);
-      padding: 20px;
-      transition: right 0.3s ease;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #sidebar.open {
-      right: 0;
-    }
-
-    #sidebar h3 {
-      margin-top: 0;
-    }
-
-    #history {
-      flex-grow: 1;
-      overflow-y: auto;
-      margin-bottom: 10px;
-    }
-
-    .history-item {
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-
-    .rare-card {
-      box-shadow: 0 0 12px 6px rgba(255, 223, 0, 0.8);
-      animation: sparkle 1s ease-in-out infinite;
-    }
-
-    @keyframes sparkle {
-      0%, 100% { filter: brightness(1); }
-      50% { filter: brightness(1.6); }
+      margin: 0 auto;
+      background-size: cover;
+      background-position: center;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     }
   </style>
 </head>
 <body>
 
-  <h1>ポケカ開封シミュレーター</h1>
+<h1>ポケカ開封シミュレーター</h1>
 
-  <div id="pack-select">
-    <h2>パックを選んでください</h2>
-    <button class="pack-button red" onclick="selectPack('r')">赤パック</button>
-    <button class="pack-button blue" onclick="selectPack('b')">青パック</button>
-  </div>
+<div id="carousel-container">
+  <div id="carousel"></div>
+</div>
+<button id="open-button">このパックを開封！</button>
 
-  <div id="pack"></div>
+<div id="card-area">
+  <h2>あなたのカード</h2>
+  <div class="card" id="opened-card"></div>
+</div>
 
-  <button id="menu-button" onclick="toggleSidebar()">☰</button>
-  <div id="sidebar">
-    <h3>📦 開封履歴</h3>
-    <div id="history"></div>
-    <hr>
-    <p>⚔️ バトル（実装中）</p>
-  </div>
+<script>
+  const carousel = document.getElementById('carousel');
+  const openButton = document.getElementById('open-button');
+  const cardArea = document.getElementById('card-area');
+  const openedCard = document.getElementById('opened-card');
 
-  <script>
-    const pack = document.getElementById('pack');
-    const packSelect = document.getElementById('pack-select');
-    const historyEl = document.getElementById('history');
+  const packImages = [
+    'images/card-back-r.png',
+    'images/card-back-b.png',
+    'images/card-back-r.png',
+    'images/card-back-b.png',
+    'images/card-back-r.png',
+    'images/card-back-b.png'
+  ];
 
-    let currentPackBack = 'r';
-    let cards = [];
-    let flippedCount = 0;
-    let zIndexCounter = 1000;
+  let angle = 0;
+  let selectedIndex = 0;
 
-    window.addEventListener('load', () => {
-      preloadImages([
-        './images/card-back-r.png', './images/card-back-b.png',
-        './images/1.png','./images/2.png','./images/3.png','./images/4.png',
-        './images/5.png','./images/6.png','./images/7.png','./images/8.png',
-        './images/9.png','./images/10.png'
-      ], () => {
-        document.body.style.opacity = 1;
-      });
-    });
+  function createCarousel() {
+    const len = packImages.length;
+    const degStep = 360 / len;
 
-    function preloadImages(urls, callback) {
-      let loaded = 0;
-      const total = urls.length;
-      urls.forEach(url => {
-        const img = new Image();
-        img.onload = () => {
-          loaded++;
-          if (loaded === total) callback();
-        };
-        img.src = url;
-      });
+    for (let i = 0; i < len; i++) {
+      const pack = document.createElement('div');
+      pack.className = 'pack';
+      pack.style.backgroundImage = `url(${packImages[i]})`;
+      const theta = i * degStep;
+      const radius = 300;
+      const x = radius * Math.sin(theta * Math.PI / 180);
+      const z = radius * Math.cos(theta * Math.PI / 180);
+      pack.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${theta}deg)`;
+      pack.dataset.index = i;
+      pack.addEventListener('click', () => selectPack(i));
+      carousel.appendChild(pack);
     }
 
-    function selectPack(type) {
-      currentPackBack = type;
-      packSelect.style.display = 'none';
-      showRotatingPacks();
+    updateSelection();
+  }
+
+  function rotateCarousel(dir) {
+    const total = packImages.length;
+    selectedIndex = (selectedIndex + dir + total) % total;
+    angle = selectedIndex * -60;
+    carousel.style.transform = `translateZ(-300px) rotateY(${angle}deg)`;
+    updateSelection();
+  }
+
+  function updateSelection() {
+    const packs = document.querySelectorAll('.pack');
+    packs.forEach(p => p.classList.remove('selected'));
+    const selected = packs[selectedIndex];
+    if (selected) {
+      selected.classList.add('selected');
     }
+    openButton.style.display = 'block';
+  }
 
-    function showRotatingPacks() {
-      const total = 12;
-      const radius = 200;
-      pack.innerHTML = '';
+  function selectPack(index) {
+    selectedIndex = index;
+    angle = selectedIndex * -60;
+    carousel.style.transform = `translateZ(-300px) rotateY(${angle}deg)`;
+    updateSelection();
+  }
 
-      for (let i = 0; i < total; i++) {
-        const angle = (2 * Math.PI / total) * i;
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
+  openButton.addEventListener('click', () => {
+    // フェードアウト
+    document.getElementById('carousel-container').style.display = 'none';
+    openButton.style.display = 'none';
 
-        const container = document.createElement('div');
-        container.className = 'card-container';
-        container.style.transform = `translate(${x}px, ${y}px)`;
-        container.style.transition = 'transform 0.6s ease';
-        container.style.zIndex = 500 - i;
+    // カードを表示
+    cardArea.style.display = 'block';
 
-        const card = document.createElement('div');
-        card.className = 'card';
-        const inner = document.createElement('div');
-        inner.className = 'card-inner';
+    // ランダムカード
+    const randCard = Math.floor(Math.random() * 10) + 1;
+    openedCard.style.backgroundImage = `url(images/${randCard}.png)`;
+  });
 
-        const back = document.createElement('div');
-        back.className = 'card-face card-back';
-        const backImg = document.createElement('img');
-        backImg.src = `./images/card-back-${currentPackBack}.png`;
-        back.appendChild(backImg);
+  createCarousel();
+</script>
 
-        inner.appendChild(back);
-        card.appendChild(inner);
-        container.appendChild(card);
-        pack.appendChild(container);
-      }
-
-      setTimeout(() => {
-        const centerCard = pack.children[0];
-        for (let i = 1; i < pack.children.length; i++) {
-          pack.children[i].style.opacity = '0';
-        }
-        centerCard.style.transform = 'translate(0px, 0px)';
-        centerCard.style.cursor = 'pointer';
-        centerCard.addEventListener('click', () => {
-          loadCards();
-        });
-        centerCard.classList.add('rare-card');
-      }, 800);
-    }
-
-    function loadCards() {
-      cards = [];
-      flippedCount = 0;
-      zIndexCounter = 1000;
-      pack.innerHTML = '';
-
-      const nums = getRandomCards(3);
-
-      nums.forEach((num, i) => {
-        const container = document.createElement('div');
-        container.className = 'card-container';
-        container.style.top = `${i * 12}px`;
-        container.style.zIndex = zIndexCounter--;
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.cardNum = num;
-
-        const inner = document.createElement('div');
-        inner.className = 'card-inner';
-
-        const front = document.createElement('div');
-        front.className = 'card-face card-front';
-        const frontImg = document.createElement('img');
-        frontImg.src = `./images/${num}.png`;
-        front.appendChild(frontImg);
-
-        const back = document.createElement('div');
-        back.className = 'card-face card-back';
-        const backImg = document.createElement('img');
-        backImg.src = `./images/card-back-${currentPackBack}.png`;
-        back.appendChild(backImg);
-
-        inner.appendChild(front);
-        inner.appendChild(back);
-        card.appendChild(inner);
-        container.appendChild(card);
-        pack.appendChild(container);
-
-        cards.push(container);
-
-        container.addEventListener('click', () => {
-          if (!card.classList.contains('flipped')) {
-            card.classList.add('flipped');
-            setTimeout(() => {
-              if (num === 9 || num === 10) {
-                container.classList.add('rare-card');
-              }
-              saveToHistory(num);
-              container.style.zIndex = 0;
-              container.style.top = `${cards.length * 20 + flippedCount * 20}px`;
-              flippedCount++;
-              if (flippedCount === 3) {
-                setTimeout(() => {
-                  pack.innerHTML = '';
-                  packSelect.style.display = 'block';
-                }, 1000);
-              }
-              scrollHistoryToBottom();
-            }, 600);
-          }
-        });
-      });
-    }
-
-    function saveToHistory(cardNum) {
-      const entry = document.createElement('div');
-      entry.className = 'history-item';
-      entry.textContent = `カード ${cardNum} を開封`;
-      historyEl.appendChild(entry);
-    }
-
-    function scrollHistoryToBottom() {
-      historyEl.scrollTop = historyEl.scrollHeight;
-    }
-
-    function getRandomCards(count) {
-      const cardPool = [1,2,3,4,5,6,7,8,9,10];
-      const results = [];
-      while (results.length < count) {
-        const rand = cardPool[Math.floor(Math.random() * cardPool.length)];
-        if (!results.includes(rand)) results.push(rand);
-      }
-      return results;
-    }
-
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
-    }
-  </script>
 </body>
 </html>
