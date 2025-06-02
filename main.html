@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ポケカ開封シミュレーター</title>
+  <title>ポケカ風開封シミュレーター</title>
   <style>
     body {
       background: #222;
@@ -13,12 +13,19 @@
 
     #pack {
       margin-top: 50px;
+      position: relative;
+      width: 150px;
+      height: 210px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .card-container {
-      display: inline-block;
+      position: absolute;
+      top: 0;
+      left: 0;
       perspective: 1000px;
-      margin: 10px;
+      transition: transform 0.5s ease;
     }
 
     .card {
@@ -59,19 +66,19 @@
       border-radius: 10px;
     }
 
-    #open-button {
+    #open-button, #reset-button {
       padding: 10px 20px;
       margin-top: 30px;
       font-size: 20px;
       cursor: pointer;
     }
 
-    .hidden {
+    #reset-button {
       display: none;
     }
 
     .fade-in {
-      animation: fadeIn 1s ease-in-out;
+      animation: fadeIn 0.5s ease-in-out;
     }
 
     @keyframes fadeIn {
@@ -83,12 +90,15 @@
 <body>
 
   <h1>ポケカ風開封シミュレーター</h1>
-  <button id="open-button">パックを開ける！</button>
+  <button id="open-button">カードを引く！</button>
+  <button id="reset-button">もう一度！</button>
   <div id="pack"></div>
 
   <script>
     const totalCards = 10;
-    const packSize = 3;
+    const packSize = 5;
+    let currentIndex = 0;
+    let drawnCards = [];
 
     function getRandomCards(count) {
       const cards = new Set();
@@ -99,17 +109,19 @@
       return Array.from(cards);
     }
 
-    document.getElementById('open-button').addEventListener('click', () => {
+    function createStackedCards(cards) {
       const pack = document.getElementById('pack');
       pack.innerHTML = '';
-      const randomCards = getRandomCards(packSize);
 
-      randomCards.forEach(cardNum => {
+      cards.forEach((cardNum, index) => {
         const container = document.createElement('div');
         container.className = 'card-container fade-in';
+        container.style.zIndex = cards.length - index;
+        container.style.transform = `translateY(-${index * 2}px)`; // 重なり表現
 
         const card = document.createElement('div');
         card.className = 'card';
+        card.dataset.index = index;
 
         const front = document.createElement('div');
         front.className = 'card-face card-front';
@@ -127,13 +139,40 @@
         card.appendChild(back);
         container.appendChild(card);
         pack.appendChild(container);
-
-        // めくりイベント
-        card.addEventListener('click', () => {
-          card.classList.toggle('flipped');
-        });
       });
-    });
+    }
+
+    function drawNextCard() {
+      const cards = document.querySelectorAll('.card');
+      if (currentIndex < cards.length) {
+        const card = cards[currentIndex];
+        card.classList.add('flipped');
+        currentIndex++;
+        if (currentIndex === cards.length) {
+          document.getElementById('open-button').style.display = 'none';
+          setTimeout(() => {
+            document.getElementById('pack').style.display = 'none';
+            document.getElementById('reset-button').style.display = 'inline-block';
+          }, 1000);
+        }
+      }
+    }
+
+    function resetPack() {
+      drawnCards = getRandomCards(packSize);
+      createStackedCards(drawnCards);
+      currentIndex = 0;
+      document.getElementById('pack').style.display = 'block';
+      document.getElementById('open-button').style.display = 'inline-block';
+      document.getElementById('reset-button').style.display = 'none';
+    }
+
+    document.getElementById('open-button').addEventListener('click', drawNextCard);
+    document.getElementById('reset-button').addEventListener('click', resetPack);
+
+    // 初期化
+    drawnCards = getRandomCards(packSize);
+    createStackedCards(drawnCards);
   </script>
 </body>
 </html>
