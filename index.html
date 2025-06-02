@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <script type="text/javascript">
-  document.getElementById("text").innerHTML = showTime();
-  
-  function showTime() {
-    var now = new Date();
-    var nowhour = now.getHours();
-    var nowminutes = now.getMinutes();
-    var nowseconds = now.getSeconds();
-  
-    var text = nowhour + "：" + nowminutes + "：" + nowseconds; 
-    
-    return text;
-  }
-  </script>
 <meta charset="utf-8">
 <title>ホーム  1-Cカードゲーム</title>
 <meta name="keywords" content="ページのキーワードA,B,C">
@@ -51,5 +37,13 @@
 </div>
 <footer>© 2025 1-CCardGame byMaito</footer>
 </div>
+  <script type="text/javascript">
+    document.getElementById("text").innerHTML = showDay();
+  function showDay() {
+    var now = new Date();
+    var day = now.getDate();
+    return day;
+  }
+  </script>
 </body>
 </html>
