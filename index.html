@@ -19,7 +19,7 @@
 <div id="content">
 <div class="inner">
 <h2>学級で遊ぶ用のゲームのベータ版です</h2>
-<p>最終更新は<span id="text"></span>に行われました</p>
+<p>最終更新は<span id="showtoday2"></span>に行われました</p>
 <h3>記事ページ見出し・中</h3>
 <p>文章あれこれ</p>
 <h4>記事ページ見出し・小</h4>
@@ -37,13 +37,21 @@
 </div>
 <footer>© 2025 1-CCardGame byMaito</footer>
 </div>
- <script type="text/javascript">
-    document.getElementById("text").innerHTML = showDay();
-  function showDay() {
-    var now = new Date();
-    var day = now.getDate();
-    return day;
+<script>
+  document.getElementById("showtoday2").innerHTML = showtoday2();
+  function showtoday2() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const day = now.getDay();
+    const week = [ "日", "月", "火", "水", "木", "金", "土" ];
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const showtoday2 = year + "年" + month + "月" + date + "日" + hours + "時" + minutes + "分" + seconds + "秒" + "（" + week[day] + "）";
+    return showtoday2;
   }
-  </script>
+</script>
 </body>
 </html>
