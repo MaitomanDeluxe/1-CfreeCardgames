@@ -1,45 +1,85 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>ポケカ開封シミュレーター</title>
+  <meta charset="UTF-8">
+  <title>ポケポケ風カード開封</title>
   <style>
     body {
-      background: #111;
-      color: white;
-      text-align: center;
-      font-family: sans-serif;
-      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+      font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
     }
 
     h1 {
-      font-size: 36px;
+      text-align: center;
+      font-size: 3em;
       margin-top: 20px;
     }
 
+    #menu-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 30px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    #sidebar {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100%;
+      background: #fff;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+      transition: right 0.3s ease;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    #sidebar.active {
+      right: 0;
+    }
+
+    #sidebar h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    #sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #sidebar li {
+      margin-bottom: 10px;
+    }
+
     #pack {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin-top: 40px;
-      position: relative;
-      width: 210px;
-      height: 290px;
-      margin-left: auto;
-      margin-right: auto;
+      flex-wrap: wrap;
     }
 
     .card-container {
       position: absolute;
-      top: 0;
-      left: 0;
+      width: 180px;
+      height: 252px;
       perspective: 1000px;
-      transition: transform 0.6s ease;
+      transition: transform 0.6s ease, z-index 0s;
     }
 
     .card {
-      width: 200px;
-      height: 280px;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
+      width: 100%;
+      height: 100%;
       position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease;
       cursor: pointer;
     }
 
@@ -52,8 +92,8 @@
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     }
 
     .card-back {
@@ -68,120 +108,129 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 12px;
+      border-radius: 10px;
     }
 
-    #open-button {
-      padding: 12px 25px;
-      font-size: 20px;
-      margin-top: 30px;
-      cursor: pointer;
-    }
-
-    #loading {
-      font-size: 18px;
-      margin-top: 100px;
-    }
-
-    .send-back {
-      animation: sendBack 0.8s ease forwards;
-    }
-
-    @keyframes sendBack {
-      0% {
-        transform: translateY(0px) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(30px) scale(0.95);
-        opacity: 0.6;
-      }
-    }
-
-    /* ✨ レアエフェクト ✨ */
-    .rare-effect::after {
+    .rare-effect::before {
       content: '';
       position: absolute;
-      top: -20px;
-      left: -20px;
-      width: 240px;
-      height: 320px;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 80%);
+      animation: sparkle 2s infinite;
+      mix-blend-mode: screen;
       pointer-events: none;
-      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 60%);
-      animation: sparkle 1.2s ease infinite;
-      border-radius: 50%;
-      z-index: 10;
     }
 
     @keyframes sparkle {
-      0% { transform: scale(1) rotate(0deg); opacity: 1; }
-      50% { transform: scale(1.2) rotate(180deg); opacity: 0.5; }
-      100% { transform: scale(1) rotate(360deg); opacity: 1; }
+      0% { transform: rotate(0deg) scale(1); opacity: 1; }
+      50% { transform: rotate(180deg) scale(1.2); opacity: 0.5; }
+      100% { transform: rotate(360deg) scale(1); opacity: 1; }
+    }
+
+    #open-button {
+      display: block;
+      margin: 40px auto;
+      padding: 15px 40px;
+      font-size: 24px;
+      color: #fff;
+      background: linear-gradient(45deg, #6c5ce7, #00cec9);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    #open-button:hover {
+      transform: scale(1.05);
+    }
+
+    #bgm-display {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 1001;
     }
   </style>
 </head>
 <body>
+  <h1>ポケポケ風カード開封</h1>
+  <div id="menu-toggle">☰</div>
+  <div id="sidebar">
+    <h2>メニュー</h2>
+    <ul>
+      <li>開封履歴</li>
+      <li>バトル（実装中）</li>
+    </ul>
+  </div>
 
-  <h1>ポケカ開封シミュレーター</h1>
-  <div id="loading">読み込み中...</div>
-  <button id="open-button" style="display:none;">カードをめくる！</button>
-  <div id="pack" style="display: none;"></div>
+  <button id="open-button">パックを引く！</button>
+  <div id="pack"></div>
+  <div id="bgm-display"></div>
+
+  <audio id="bgm" autoplay loop></audio>
 
   <script>
-    const totalCards = 10;
+    const cardTotal = 10;
     const packSize = 3;
-    let states = [];
+    const pack = document.getElementById('pack');
+    const button = document.getElementById('open-button');
+    const bgmDisplay = document.getElementById('bgm-display');
+    const bgm = document.getElementById('bgm');
 
-    const preloadImages = () => {
-      const images = [];
-      for (let i = 1; i <= totalCards; i++) images.push(`./images/${i}.png`);
-      images.push('./images/card-back.png');
-      return Promise.all(images.map(src => {
-        return new Promise(resolve => {
-          const img = new Image();
-          img.src = src;
-          img.onload = resolve;
-        });
-      }));
-    };
+    const bgmList = [
+      { file: 'CTD.mp3', title: 'Cassette Tape Dream' },
+      { file: 'SU.mp3', title: 'superstar' },
+      { file: 'GH.mp3', title: 'Ghosts' },
+      { file: 'IG.mp3', title: 'It Go' },
+      { file: 'homo.mp3', title: 'ホモエドマニア' }
+    ];
 
-    function getRandomCards(count) {
-      const cards = [];
-      while (cards.length < count) {
-        const rand = Math.random();
-        let num;
-        if (rand < 0.07) {
-          // レア枠（7%）
-          num = Math.random() < 0.5 ? 9 : 10;
-        } else {
-          // 通常枠（93% → 1〜8）
-          num = Math.floor(Math.random() * 8) + 1;
-        }
-        cards.push(num);
-      }
-      return cards;
+    function playRandomBGM() {
+      const track = bgmList[Math.floor(Math.random() * bgmList.length)];
+      bgm.src = `./bgm/${track.file}`;
+      bgmDisplay.textContent = `🎵 ${track.title}`;
     }
 
-    function createCards(cardNums) {
-      const pack = document.getElementById('pack');
-      pack.innerHTML = '';
-      states = new Array(cardNums.length).fill(0);
-      pack.style.display = 'block';
+    document.getElementById('menu-toggle').onclick = () => {
+      document.getElementById('sidebar').classList.toggle('active');
+    };
 
-      cardNums.forEach((num, i) => {
+    button.addEventListener('click', () => {
+      button.style.display = 'none';
+      pack.innerHTML = '';
+      let drawn = 0;
+      const zBase = 100;
+      const cards = [];
+      const selected = new Set();
+
+      while (selected.size < packSize) {
+        let rand = Math.floor(Math.random() * cardTotal) + 1;
+        selected.add(rand);
+      }
+
+      [...selected].forEach((cardNum, i) => {
         const container = document.createElement('div');
         container.className = 'card-container';
-        container.style.zIndex = packSize - i;
-        container.style.transform = `translateY(-${i * 3}px)`;
+        container.style.zIndex = zBase - i;
+        container.style.left = `${50 + i * 30}px`;
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.dataset.index = i;
 
         const front = document.createElement('div');
         front.className = 'card-face card-front';
         const frontImg = document.createElement('img');
-        frontImg.src = `./images/${num}.png`;
+        frontImg.src = `./images/${cardNum}.png`;
+        if (cardNum === 9 || cardNum === 10) front.classList.add('rare-effect');
         front.appendChild(frontImg);
 
         const back = document.createElement('div');
@@ -195,61 +244,31 @@
         container.appendChild(card);
         pack.appendChild(container);
 
-        // レアカードエフェクト付与
-        if (num === 9 || num === 10) {
-          card.classList.add('rare-effect');
-        }
+        container.addEventListener('click', () => {
+          if (!card.classList.contains('flipped')) {
+            card.classList.add('flipped');
+          } else {
+            container.style.transition = 'transform 0.6s ease';
+            container.style.transform = 'translateY(40px) scale(0.95)';
+            setTimeout(() => {
+              container.style.zIndex = zBase - packSize - drawn;
+              container.style.transform = 'none';
+              card.classList.remove('flipped');
+              drawn++;
+              if (drawn === packSize) {
+                setTimeout(() => {
+                  pack.innerHTML = '';
+                  button.style.display = 'block';
+                }, 500);
+              }
+            }, 600);
+          }
+        });
 
-        card.addEventListener('click', () => handleCardClick(card, container));
+        cards.push(container);
       });
-    }
 
-    function handleCardClick(card, container) {
-      const index = parseInt(card.dataset.index);
-      const state = states[index];
-
-      if (state === 0) {
-        card.classList.add('flipped');
-        states[index] = 1;
-      } else if (state === 1) {
-        container.classList.add('send-back');
-        setTimeout(() => {
-          container.style.zIndex = getLowestZIndex() - 1;
-          container.classList.remove('send-back');
-          states[index] = 2;
-          checkAllCardsBack();
-        }, 600);
-      }
-    }
-
-    function getLowestZIndex() {
-      const containers = document.querySelectorAll('.card-container');
-      let min = 999;
-      containers.forEach(c => {
-        const z = parseInt(c.style.zIndex);
-        if (z < min) min = z;
-      });
-      return min;
-    }
-
-    function checkAllCardsBack() {
-      if (states.every(s => s === 2)) {
-        setTimeout(() => {
-          document.getElementById('pack').style.display = 'none';
-          document.getElementById('open-button').style.display = 'inline-block';
-        }, 600);
-      }
-    }
-
-    document.getElementById('open-button').addEventListener('click', () => {
-      const cards = getRandomCards(packSize);
-      createCards(cards);
-      document.getElementById('open-button').style.display = 'none';
-    });
-
-    preloadImages().then(() => {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('open-button').style.display = 'inline-block';
+      playRandomBGM();
     });
   </script>
 </body>
