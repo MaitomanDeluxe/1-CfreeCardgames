@@ -2,85 +2,43 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ポケポケ風カード開封</title>
+  <title>ポケカ開封シミュレーター</title>
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #ffeaa7, #fab1a0);
-      font-family: 'Segoe UI', sans-serif;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
       overflow-x: hidden;
     }
 
     h1 {
       text-align: center;
       font-size: 3em;
-      margin-top: 20px;
-    }
-
-    #menu-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      font-size: 30px;
-      cursor: pointer;
-      z-index: 1001;
-    }
-
-    #sidebar {
-      position: fixed;
-      top: 0;
-      right: -300px;
-      width: 300px;
-      height: 100%;
-      background: #fff;
-      box-shadow: -2px 0 10px rgba(0,0,0,0.3);
-      transition: right 0.3s ease;
-      z-index: 1000;
-      padding: 20px;
-    }
-
-    #sidebar.active {
-      right: 0;
-    }
-
-    #sidebar h2 {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    #sidebar ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    #sidebar li {
-      margin-bottom: 10px;
+      margin-top: 30px;
     }
 
     #pack {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-top: 40px;
-      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 30px;
+      flex-wrap: nowrap;
     }
 
     .card-container {
-      position: absolute;
-      width: 180px;
-      height: 252px;
       perspective: 1000px;
-      transition: transform 0.6s ease, z-index 0s;
     }
 
     .card {
-      width: 100%;
-      height: 100%;
-      position: relative;
+      width: 300px;
+      height: 420px;
+      transition: transform 0.6s;
       transform-style: preserve-3d;
-      transition: transform 0.6s ease;
+      position: relative;
       cursor: pointer;
+      z-index: 10;
     }
 
     .flipped {
@@ -92,8 +50,8 @@
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
     .card-back {
@@ -108,39 +66,20 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .rare-effect::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 80%);
-      animation: sparkle 2s infinite;
-      mix-blend-mode: screen;
-      pointer-events: none;
-    }
-
-    @keyframes sparkle {
-      0% { transform: rotate(0deg) scale(1); opacity: 1; }
-      50% { transform: rotate(180deg) scale(1.2); opacity: 0.5; }
-      100% { transform: rotate(360deg) scale(1); opacity: 1; }
+      border-radius: 12px;
     }
 
     #open-button {
       display: block;
       margin: 40px auto;
-      padding: 15px 40px;
+      padding: 15px 30px;
       font-size: 24px;
-      color: #fff;
-      background: linear-gradient(45deg, #6c5ce7, #00cec9);
       border: none;
       border-radius: 12px;
+      background: linear-gradient(45deg, #ff5f6d, #ffc371);
+      color: white;
       cursor: pointer;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(255, 100, 100, 0.4);
       transition: transform 0.2s;
     }
 
@@ -148,80 +87,164 @@
       transform: scale(1.05);
     }
 
-    #bgm-display {
+    .rare-effect {
+      position: absolute;
+      top: -20%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: radial-gradient(circle, #fff 0%, transparent 60%);
+      border-radius: 50%;
+      animation: sparkle 1s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+
+    #now-playing {
       position: fixed;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.5);
+      right: 20px;
+      bottom: 20px;
+      font-size: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 14px;
+      border-radius: 12px;
+      z-index: 999;
+    }
+
+    #volume-control {
+      position: fixed;
+      top: 10px;
+      right: 20px;
       color: white;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      font-size: 16px;
+      z-index: 999;
+    }
+
+    #menu-button {
+      position: fixed;
+      top: 12px;
+      left: 20px;
+      font-size: 26px;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
       z-index: 1001;
+    }
+
+    #sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background: #222;
+      color: white;
+      transition: left 0.3s ease-in-out;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    #sidebar.active {
+      left: 0;
+    }
+
+    .sidebar-title {
+      font-size: 20px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #555;
+    }
+
+    .history-entry {
+      font-size: 14px;
+      margin: 5px 0;
     }
   </style>
 </head>
 <body>
-  <h1>ポケポケ風カード開封</h1>
-  <div id="menu-toggle">☰</div>
+
+  <button id="menu-button">☰</button>
   <div id="sidebar">
-    <h2>メニュー</h2>
-    <ul>
-      <li>開封履歴</li>
-      <li>バトル（実装中）</li>
-    </ul>
+    <div class="sidebar-title">開封履歴</div>
+    <div id="history"></div>
+    <div class="sidebar-title">バトル（実装中）</div>
   </div>
 
-  <button id="open-button">パックを引く！</button>
+  <div id="volume-control">
+    🔊 <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+  </div>
+
+  <h1>ポケカ開封シミュレーター</h1>
+  <button id="open-button">カードをめくる！</button>
   <div id="pack"></div>
-  <div id="bgm-display"></div>
+  <div id="now-playing">🎵 -</div>
 
   <audio id="bgm" autoplay loop></audio>
 
   <script>
-    const cardTotal = 10;
-    const packSize = 3;
+    const openButton = document.getElementById('open-button');
     const pack = document.getElementById('pack');
-    const button = document.getElementById('open-button');
-    const bgmDisplay = document.getElementById('bgm-display');
+    const nowPlaying = document.getElementById('now-playing');
     const bgm = document.getElementById('bgm');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('menu-button');
+    const history = document.getElementById('history');
 
     const bgmList = [
-      { file: 'CTD.mp3', title: 'Cassette Tape Dream' },
-      { file: 'SU.mp3', title: 'Superstar' },
-      { file: 'GH.mp3', title: 'Ghosts' },
-      { file: 'IG.mp3', title: 'It Go' },
-      { file: 'ST.mp3', title: 'Summer Triangle' }
+      { file: 'CTD.mp3', name: 'Cassette Tape Dream' },
+      { file: 'SU.mp3', name: 'superstar' },
+      { file: 'GH.mp3', name: 'Ghosts' },
+      { file: 'IG.mp3', name: 'It Go' },
+      { file: 'homo.mp3', name: 'ホモエドマニア' }
     ];
 
-    function playRandomBGM() {
-      const track = bgmList[Math.floor(Math.random() * bgmList.length)];
-      bgm.src = `./bgm/${track.file}`;
-      bgmDisplay.textContent = `🎵 ${track.title}`;
-    }
+    let cards = [];
+    let currentIndex = 0;
 
-    document.getElementById('menu-toggle').onclick = () => {
-      document.getElementById('sidebar').classList.toggle('active');
+    const preloadImages = () => {
+      for (let i = 1; i <= 10; i++) {
+        const img = new Image();
+        img.src = `images/${i}.png`;
+      }
+      const back = new Image();
+      back.src = 'images/card-back.png';
     };
 
-    button.addEventListener('click', () => {
-      button.style.display = 'none';
-      pack.innerHTML = '';
-      let drawn = 0;
-      const zBase = 100;
-      const cards = [];
-      const selected = new Set();
+    const playRandomBGM = () => {
+      const choice = bgmList[Math.floor(Math.random() * bgmList.length)];
+      bgm.src = `bgm/${choice.file}`;
+      nowPlaying.textContent = `🎵 ${choice.name}`;
+      bgm.volume = volumeSlider.value;
+    };
 
-      while (selected.size < packSize) {
-        let rand = Math.floor(Math.random() * cardTotal) + 1;
-        selected.add(rand);
+    volumeSlider.addEventListener('input', (e) => {
+      bgm.volume = parseFloat(e.target.value);
+    });
+
+    menuButton.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
+    openButton.addEventListener('click', () => {
+      openButton.style.display = 'none';
+      pack.innerHTML = '';
+      cards = [];
+
+      let chosen = [];
+      while (chosen.length < 3) {
+        const n = Math.floor(Math.random() * 10) + 1;
+        if (!chosen.includes(n)) chosen.push(n);
       }
 
-      [...selected].forEach((cardNum, i) => {
+      chosen.forEach((num, i) => {
         const container = document.createElement('div');
         container.className = 'card-container';
-        container.style.zIndex = zBase - i;
-        container.style.left = `${50 + i * 30}px`;
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -229,45 +252,58 @@
         const front = document.createElement('div');
         front.className = 'card-face card-front';
         const frontImg = document.createElement('img');
-        frontImg.src = `./images/${cardNum}.png`;
-        if (cardNum === 9 || cardNum === 10) front.classList.add('rare-effect');
+        frontImg.src = `images/${num}.png`;
         front.appendChild(frontImg);
 
         const back = document.createElement('div');
         back.className = 'card-face card-back';
         const backImg = document.createElement('img');
-        backImg.src = './images/card-back.png';
+        backImg.src = 'images/card-back.png';
         back.appendChild(backImg);
 
         card.appendChild(front);
         card.appendChild(back);
+
+        // レア演出
+        if (num === 9 || num === 10) {
+          const effect = document.createElement('div');
+          effect.className = 'rare-effect';
+          card.appendChild(effect);
+        }
+
         container.appendChild(card);
         pack.appendChild(container);
+        cards.push({ card, num });
 
-        container.addEventListener('click', () => {
+        // めくり＋最背面移動
+        card.addEventListener('click', () => {
           if (!card.classList.contains('flipped')) {
             card.classList.add('flipped');
           } else {
-            container.style.transition = 'transform 0.6s ease';
-            container.style.transform = 'translateY(40px) scale(0.95)';
+            card.style.transition = 'transform 0.5s ease-in-out';
+            card.style.zIndex = 0;
+            card.parentElement.style.opacity = '0.3';
             setTimeout(() => {
-              container.style.zIndex = zBase - packSize - drawn;
-              container.style.transform = 'none';
-              card.classList.remove('flipped');
-              drawn++;
-              if (drawn === packSize) {
-                setTimeout(() => {
-                  pack.innerHTML = '';
-                  button.style.display = 'block';
-                }, 500);
+              card.parentElement.remove();
+              currentIndex++;
+              if (currentIndex >= cards.length) {
+                openButton.style.display = 'block';
+                currentIndex = 0;
               }
-            }, 600);
+            }, 400);
           }
         });
 
-        cards.push(container);
+        // 履歴追加
+        const entry = document.createElement('div');
+        entry.className = 'history-entry';
+        entry.textContent = `🎴 ${num}.png`;
+        history.prepend(entry);
       });
+    });
 
+    window.addEventListener('load', () => {
+      preloadImages();
       playRandomBGM();
     });
   </script>
