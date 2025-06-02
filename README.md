@@ -1,1 +1,1 @@
-# 1-CfreeCardgames
+# 1-Cカードゲーム --beta version
