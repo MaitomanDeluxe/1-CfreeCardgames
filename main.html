@@ -7,38 +7,38 @@
     body {
       margin: 0;
       overflow: hidden;
-      background: linear-gradient(145deg, #f8f9fa, #e0f7fa);
+      background: linear-gradient(to bottom right, #f0f0ff, #e0ffff);
       font-family: 'Segoe UI', sans-serif;
     }
 
-    h1, h2 {
+    h1 {
       text-align: center;
-      margin-top: 20px;
+      padding-top: 20px;
     }
 
     #pack-select {
       display: flex;
       justify-content: center;
+      gap: 40px;
       margin-top: 100px;
     }
 
     .pack-button {
       font-size: 24px;
-      padding: 16px 36px;
-      margin: 20px;
+      padding: 20px 40px;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       color: white;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    .pack-button.red { background: crimson; }
-    .pack-button.blue { background: dodgerblue; }
+    .pack-button.red { background-color: crimson; }
+    .pack-button.blue { background-color: dodgerblue; }
 
     #carousel-wrapper {
-      perspective: 1200px;
-      width: 100%;
+      perspective: 1000px;
       height: 500px;
       display: none;
       justify-content: center;
@@ -46,50 +46,48 @@
     }
 
     #carousel {
-      width: 300px;
+      width: 100%;
       height: 300px;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 1s ease;
+      transition: transform 0.8s ease;
     }
 
     .pack {
-      width: 120px;
-      height: 180px;
+      width: 140px;
+      height: 200px;
       position: absolute;
       top: 50%;
       left: 50%;
-      margin: -90px 0 0 -60px;
-      background-size: cover;
-      background-position: center;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       transform-style: preserve-3d;
+      margin: -100px 0 0 -70px;
+      background-size: cover;
+      border-radius: 10px;
+      transition: transform 0.6s ease;
       cursor: pointer;
-      transition: transform 0.3s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
 
     .pack.highlight {
-      box-shadow: 0 0 20px 8px gold;
-      transform: scale(1.2) rotateY(0deg) !important;
+      transform: translateZ(400px) rotateY(0deg) scale(1.2) !important;
       z-index: 1000;
+      box-shadow: 0 0 25px 10px gold;
     }
 
     #open-section {
-      display: none;
       text-align: center;
-      margin-top: 50px;
+      margin-top: 30px;
+      display: none;
     }
 
     .card {
       display: inline-block;
-      width: 180px;
-      height: 260px;
-      margin: 0 10px;
+      width: 160px;
+      height: 240px;
+      margin: 10px;
       background-size: cover;
-      background-position: center;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
   </style>
 </head>
@@ -106,19 +104,17 @@
   </div>
 
   <div id="open-section">
-    <h2>選んだパックからカードを開封！</h2>
+    <h2>カードを開封！</h2>
     <div id="card-area"></div>
   </div>
 
   <script>
-    const carouselWrapper = document.getElementById('carousel-wrapper');
-    const carousel = document.getElementById('carousel');
-    const cardArea = document.getElementById('card-area');
-    const openSection = document.getElementById('open-section');
     const NUM_PACKS = 8;
+    const carousel = document.getElementById('carousel');
+    const carouselWrapper = document.getElementById('carousel-wrapper');
+    const cardArea = document.getElementById('card-area');
     let selectedIndex = 0;
-    const rotateStep = 360 / NUM_PACKS;
-    const packs = [];
+    let packs = [];
     let packType = 'r';
 
     function selectPack(type) {
@@ -130,53 +126,55 @@
 
     function setupCarousel() {
       carousel.innerHTML = '';
-      packs.length = 0;
+      packs = [];
+
       for (let i = 0; i < NUM_PACKS; i++) {
         const pack = document.createElement('div');
         pack.className = 'pack';
-        pack.style.backgroundImage = \`url(./images/card-back-\${packType}.png)\`;
+        pack.style.backgroundImage = `url(./images/card-back-${packType}.png)`;
         carousel.appendChild(pack);
         packs.push(pack);
 
         pack.addEventListener('click', () => {
-          if (i === selectedIndex) {
-            openPack();
-          } else {
-            rotateTo(i);
-          }
+          if (i === selectedIndex) openPack();
+          else rotateTo(i);
         });
       }
+
       updateCarousel();
     }
 
     function rotateTo(index) {
-      selectedIndex = Math.max(0, Math.min(NUM_PACKS - 1, index));
+      if (index < 0 || index >= NUM_PACKS) return;
+      selectedIndex = index;
       updateCarousel();
     }
 
     function updateCarousel() {
-      const angle = -rotateStep * selectedIndex;
-      carousel.style.transform = \`rotateY(\${angle}deg)\`;
-      packs.forEach((p, i) => {
-        const theta = i * rotateStep;
-        p.style.transform = \`rotateY(\${theta}deg) translateZ(400px)\`;
+      const angle = 360 / NUM_PACKS;
+      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
+
+      packs.forEach((pack, i) => {
+        const theta = angle * i;
+        pack.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
         if (i === selectedIndex) {
-          p.classList.add('highlight');
+          pack.classList.add('highlight');
         } else {
-          p.classList.remove('highlight');
+          pack.classList.remove('highlight');
         }
       });
     }
 
     function openPack() {
       carouselWrapper.style.display = 'none';
-      openSection.style.display = 'block';
+      document.getElementById('open-section').style.display = 'block';
       cardArea.innerHTML = '';
+
       const cards = getRandomCards(3);
       cards.forEach(num => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.backgroundImage = \`url(./images/\${num}.png)\`;
+        card.style.backgroundImage = `url(./images/${num}.png)`;
         cardArea.appendChild(card);
       });
     }
@@ -191,25 +189,25 @@
       return result;
     }
 
-    // スワイプ操作（マウス＋タッチ）
+    // スワイプ操作（PC / スマホ共通）
     let startX = 0;
     let dragging = false;
 
-    carouselWrapper.addEventListener('mousedown', e => {
-      dragging = true;
-      startX = e.clientX;
-    });
-
-    carouselWrapper.addEventListener('mousemove', e => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
+    function onSwipeMove(dx) {
       if (Math.abs(dx) > 40) {
         if (dx < 0 && selectedIndex < NUM_PACKS - 1) rotateTo(selectedIndex + 1);
         if (dx > 0 && selectedIndex > 0) rotateTo(selectedIndex - 1);
         dragging = false;
       }
-    });
+    }
 
+    carouselWrapper.addEventListener('mousedown', e => {
+      dragging = true;
+      startX = e.clientX;
+    });
+    carouselWrapper.addEventListener('mousemove', e => {
+      if (dragging) onSwipeMove(e.clientX - startX);
+    });
     carouselWrapper.addEventListener('mouseup', () => dragging = false);
     carouselWrapper.addEventListener('mouseleave', () => dragging = false);
 
@@ -217,17 +215,9 @@
       dragging = true;
       startX = e.touches[0].clientX;
     });
-
     carouselWrapper.addEventListener('touchmove', e => {
-      if (!dragging) return;
-      const dx = e.touches[0].clientX - startX;
-      if (Math.abs(dx) > 40) {
-        if (dx < 0 && selectedIndex < NUM_PACKS - 1) rotateTo(selectedIndex + 1);
-        if (dx > 0 && selectedIndex > 0) rotateTo(selectedIndex - 1);
-        dragging = false;
-      }
+      if (dragging) onSwipeMove(e.touches[0].clientX - startX);
     });
-
     carouselWrapper.addEventListener('touchend', () => dragging = false);
   </script>
 </body>
