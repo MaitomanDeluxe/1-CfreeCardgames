@@ -1,230 +1,259 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>ポケカ開封シミュレーター</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom right, #f0f8ff, #e6f7ff);
       overflow: hidden;
+      background: linear-gradient(to bottom right, #f0f0ff, #e0ffff);
+      font-family: 'Segoe UI', sans-serif;
     }
+
     h1 {
       text-align: center;
-      font-size: 2.8em;
-      margin-top: 20px;
+      padding-top: 20px;
     }
+
     #pack-select {
-      text-align: center;
-      margin-top: 60px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 100px;
     }
+
     .pack-button {
       font-size: 24px;
-      padding: 14px 36px;
-      margin: 20px;
+      padding: 20px 40px;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       color: white;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-    .pack-button.red { background: crimson; }
-    .pack-button.blue { background: dodgerblue; }
-    #carousel-container {
-      display: none;
-      perspective: 1200px;
-      width: 100%;
+
+    .pack-button.red { background-color: crimson; }
+    .pack-button.blue { background-color: dodgerblue; }
+
+    #carousel-wrapper {
+      perspective: 1000px;
       height: 500px;
-      position: relative;
-      overflow: hidden;
-      margin-top: 60px;
+      display: none;
+      justify-content: center;
+      align-items: center;
     }
+
     #carousel {
+      width: 100%;
+      height: 300px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s ease;
+    }
+
+    .pack {
+      width: 140px;
+      height: 200px;
       position: absolute;
       top: 50%;
       left: 50%;
       transform-style: preserve-3d;
-      transform: translate(-50%, -50%) rotateY(0deg);
-      transition: transform 0.8s ease-out;
-    }
-    .carousel-item {
-      position: absolute;
-      width: 200px;
-      height: 300px;
-      transform-style: preserve-3d;
-      transition: transform 0.5s ease;
-      cursor: pointer;
-    }
-    .carousel-item img {
-      width: 100%;
-      height: 100%;
+      margin: -100px 0 0 -70px;
+      background-size: cover;
       border-radius: 10px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      transition: transform 0.6s ease;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
-    .carousel-item.center {
-      transform: scale(1.2) translateZ(80px) rotateY(0deg) !important;
-      z-index: 10;
+
+    .pack.highlight {
+      transform: translateZ(400px) rotateY(0deg) scale(1.2) !important;
+      z-index: 1000;
+      box-shadow: 0 0 25px 10px gold;
     }
-    #card-area {
+
+    #open-section {
+      text-align: center;
+      margin-top: 30px;
       display: none;
+    }
+
+    #card-area {
       position: relative;
       width: 100%;
-      height: 500px;
-      margin-top: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      height: 300px;
     }
-    .card-stack {
+
+    .card {
+      width: 160px;
+      height: 240px;
+      background-size: cover;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
       position: absolute;
-      width: 260px;
-      height: 360px;
-      cursor: pointer;
-      transition: top 0.5s ease, transform 0.8s;
-    }
-    .card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
   </style>
 </head>
 <body>
+  <h1>ポケカ開封シミュレーター</h1>
 
-<h1>ポケカ開封シミュレーター</h1>
-<div id="pack-select">
-  <h2>パックを選んでください</h2>
-  <button class="pack-button red" onclick="startCarousel('r')">赤パック</button>
-  <button class="pack-button blue" onclick="startCarousel('b')">青パック</button>
-</div>
+  <div id="pack-select">
+    <button class="pack-button red" onclick="selectPack('r')">赤パック</button>
+    <button class="pack-button blue" onclick="selectPack('b')">青パック</button>
+  </div>
 
-<div id="carousel-container">
-  <div id="carousel"></div>
-</div>
+  <div id="carousel-wrapper">
+    <div id="carousel"></div>
+  </div>
 
-<div id="card-area"></div>
+  <div id="open-section">
+    <h2>カードを開封！</h2>
+    <div id="card-area"></div>
+    <p>カードをタップしてめくろう</p>
+  </div>
 
-<script>
-  const packSelect = document.getElementById('pack-select');
-  const carouselContainer = document.getElementById('carousel-container');
-  const carousel = document.getElementById('carousel');
-  const cardArea = document.getElementById('card-area');
+  <script>
+    const NUM_PACKS = 8;
+    const carousel = document.getElementById('carousel');
+    const carouselWrapper = document.getElementById('carousel-wrapper');
+    const cardArea = document.getElementById('card-area');
+    let selectedIndex = 0;
+    let packs = [];
+    let packType = 'r';
 
-  let cardBack = 'r';
-  let angle = 0;
-  let index = 0;
-  let numItems = 10;
-  let rotating = false;
-
-  function startCarousel(type) {
-    cardBack = type;
-    packSelect.style.display = 'none';
-    carouselContainer.style.display = 'block';
-    loadCarousel();
-  }
-
-  function loadCarousel() {
-    carousel.innerHTML = '';
-    for (let i = 0; i < numItems; i++) {
-      const item = document.createElement('div');
-      item.className = 'carousel-item';
-      item.style.transform = `rotateY(${i * (360 / numItems)}deg) translateZ(400px)`;
-      const img = document.createElement('img');
-      img.src = `./images/card-back-${cardBack}.png`;
-      item.appendChild(img);
-      carousel.appendChild(item);
+    function selectPack(type) {
+      packType = type;
+      document.getElementById('pack-select').style.display = 'none';
+      carouselWrapper.style.display = 'flex';
+      setupCarousel();
     }
-    updateCenterItem();
-  }
 
-  function updateCenterItem() {
-    const items = document.querySelectorAll('.carousel-item');
-    items.forEach(i => i.classList.remove('center'));
-    const current = items[index % numItems];
-    current.classList.add('center');
-  }
+    function setupCarousel() {
+      carousel.innerHTML = '';
+      packs = [];
 
-  function rotateCarousel(dir) {
-    if (rotating) return;
-    rotating = true;
-    index = (index + dir + numItems) % numItems;
-    angle -= dir * (360 / numItems);
-    carousel.style.transform = `translate(-50%, -50%) rotateY(${angle}deg)`;
-    setTimeout(() => {
-      updateCenterItem();
-      rotating = false;
-    }, 800);
-  }
+      for (let i = 0; i < NUM_PACKS; i++) {
+        const pack = document.createElement('div');
+        pack.className = 'pack';
+        pack.style.backgroundImage = `url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAMAAABbK+1nAAAABlBMVEXMzMyWlpZJmHgRAAAAX0lEQVR4nO3QsQkAMAgDQYH9d87KD2QLU1TpsuGDRkyZMiQIECRIkSJEiQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECDwX4DkFb2xJ4p5iAAAAAElFTkSuQmCC')`;
+        carousel.appendChild(pack);
+        packs.push(pack);
 
-  function openPack() {
-    carouselContainer.style.display = 'none';
-    cardArea.style.display = 'flex';
-    const cards = getRandomCards(3);
-    cardArea.innerHTML = '';
-    cards.forEach((n, i) => {
-      const div = document.createElement('div');
-      div.className = 'card-stack';
-      div.style.top = `${i * 10}px`;
-      div.style.zIndex = 100 - i;
-      const img = document.createElement('img');
-      img.className = 'card-img';
-      img.src = `./images/card-back-${cardBack}.png`;
-      div.appendChild(img);
-      let flipped = false;
-      div.addEventListener('click', () => {
-        if (!flipped && i === 0) {
-          img.src = `./images/${n}.png`;
-          flipped = true;
-        } else if (flipped) {
-          div.style.top = '120px';
-          div.style.zIndex = 0;
-          div.style.transform = 'scale(0.9)';
-          setTimeout(() => {
-            cardArea.removeChild(div);
-            if (cardArea.children.length === 0) {
-              cardArea.style.display = 'none';
-              packSelect.style.display = 'block';
-            }
-          }, 800);
+        pack.addEventListener('click', () => {
+          if (i === selectedIndex) openPack();
+          else rotateTo(i);
+        });
+      }
+
+      updateCarousel();
+    }
+
+    function rotateTo(index) {
+      if (index < 0 || index >= NUM_PACKS) return;
+      selectedIndex = index;
+      updateCarousel();
+    }
+
+    function updateCarousel() {
+      const angle = 360 / NUM_PACKS;
+      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
+
+      packs.forEach((pack, i) => {
+        const theta = angle * i;
+        pack.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
+        if (i === selectedIndex) {
+          pack.classList.add('highlight');
+        } else {
+          pack.classList.remove('highlight');
         }
       });
-      cardArea.appendChild(div);
-    });
-  }
-
-  function getRandomCards(n) {
-    const pool = [1,2,3,4,5,6,7,8,9,10];
-    const res = [];
-    while (res.length < n) {
-      const rand = pool[Math.floor(Math.random() * pool.length)];
-      if (!res.includes(rand)) res.push(rand);
     }
-    return res;
-  }
 
-  document.addEventListener('keydown', e => {
-    if (carouselContainer.style.display !== 'block') return;
-    if (e.key === 'ArrowRight') rotateCarousel(1);
-    if (e.key === 'ArrowLeft') rotateCarousel(-1);
-    if (e.key === 'Enter') openPack();
-  });
+    function openPack() {
+      carouselWrapper.style.display = 'none';
+      document.getElementById('open-section').style.display = 'block';
+      cardArea.innerHTML = '';
 
-  // スワイプ操作対応
-  let startX = 0;
-  carouselContainer.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX;
-  });
-  carouselContainer.addEventListener('touchend', e => {
-    const endX = e.changedTouches[0].clientX;
-    const delta = endX - startX;
-    if (delta > 50) rotateCarousel(-1);
-    if (delta < -50) rotateCarousel(1);
-  });
-</script>
+      const cards = getRandomCards(3);
+      let currentCard = 0;
 
+      cards.forEach((num, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.backgroundImage = `url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAMAAABbK+1nAAAABlBMVEXMzMyWlpZJmHgRAAAAX0lEQVR4nO3QsQkAMAgDQYH9d87KD2QLU1TpsuGDRkyZMiQIECRIkSJEiQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECDwX4DkFb2xJ4p5iAAAAAElFTkSuQmCC')`;
+        card.dataset.front = `url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAMAAABbK+1nAAAABlBMVEXMzMyWlpZJmHgRAAAAX0lEQVR4nO3QsQkAMAgDQYH9d87KD2QLU1TpsuGDRkyZMiQIECRIkSJEiQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECDwX4DkFb2xJ4p5iAAAAAElFTkSuQmCC')`; // ダミー画像
+        card.style.zIndex = 100 - i;
+        cardArea.appendChild(card);
+      });
+
+      cardArea.onclick = () => {
+        const cardsDOM = Array.from(cardArea.getElementsByClassName('card'));
+        if (currentCard < cardsDOM.length) {
+          const card = cardsDOM[currentCard];
+          card.style.transition = 'transform 0.6s';
+          card.style.transform += ' rotateY(180deg)';
+
+          setTimeout(() => {
+            card.style.backgroundImage = card.dataset.front;
+          }, 300);
+
+          card.style.zIndex = 1000 + currentCard;
+          currentCard++;
+        } else {
+          document.getElementById('open-section').style.display = 'none';
+          document.getElementById('pack-select').style.display = 'flex';
+        }
+      };
+    }
+
+    function getRandomCards(n) {
+      const pool = [1,2,3,4,5,6,7,8,9,10];
+      const result = [];
+      while (result.length < n) {
+        const r = pool[Math.floor(Math.random() * pool.length)];
+        if (!result.includes(r)) result.push(r);
+      }
+      return result;
+    }
+
+    // スワイプ操作
+    let startX = 0;
+    let dragging = false;
+
+    function onSwipeMove(dx) {
+      if (Math.abs(dx) > 40) {
+        if (dx < 0 && selectedIndex < NUM_PACKS - 1) rotateTo(selectedIndex + 1);
+        if (dx > 0 && selectedIndex > 0) rotateTo(selectedIndex - 1);
+        dragging = false;
+      }
+    }
+
+    carouselWrapper.addEventListener('mousedown', e => {
+      dragging = true;
+      startX = e.clientX;
+    });
+    carouselWrapper.addEventListener('mousemove', e => {
+      if (dragging) onSwipeMove(e.clientX - startX);
+    });
+    carouselWrapper.addEventListener('mouseup', () => dragging = false);
+    carouselWrapper.addEventListener('mouseleave', () => dragging = false);
+
+    carouselWrapper.addEventListener('touchstart', e => {
+      dragging = true;
+      startX = e.touches[0].clientX;
+    });
+    carouselWrapper.addEventListener('touchmove', e => {
+      if (dragging) onSwipeMove(e.touches[0].clientX - startX);
+    });
+    carouselWrapper.addEventListener('touchend', () => dragging = false);
+  </script>
 </body>
 </html>
