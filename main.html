@@ -6,23 +6,20 @@
   <style>
     body {
       margin: 0;
-      overflow: hidden;
       background: linear-gradient(to bottom right, #f0f0ff, #e0ffff);
       font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
     }
-
     h1 {
       text-align: center;
-      padding-top: 20px;
+      margin-top: 20px;
     }
-
     #pack-select {
       display: flex;
       justify-content: center;
       gap: 40px;
       margin-top: 100px;
     }
-
     .pack-button {
       font-size: 24px;
       padding: 20px 40px;
@@ -33,7 +30,6 @@
       font-weight: bold;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-
     .pack-button.red { background-color: crimson; }
     .pack-button.blue { background-color: dodgerblue; }
 
@@ -44,7 +40,6 @@
       justify-content: center;
       align-items: center;
     }
-
     #carousel {
       width: 100%;
       height: 300px;
@@ -52,7 +47,6 @@
       transform-style: preserve-3d;
       transition: transform 0.8s ease;
     }
-
     .pack {
       width: 140px;
       height: 200px;
@@ -62,12 +56,12 @@
       transform-style: preserve-3d;
       margin: -100px 0 0 -70px;
       background-size: cover;
+      background-position: center;
       border-radius: 10px;
       transition: transform 0.6s ease;
       cursor: pointer;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
-
     .pack.highlight {
       transform: translateZ(400px) rotateY(0deg) scale(1.2) !important;
       z-index: 1000;
@@ -75,21 +69,21 @@
     }
 
     #open-section {
+      display: none;
       text-align: center;
       margin-top: 30px;
-      display: none;
     }
-
     #card-area {
       position: relative;
       width: 100%;
-      height: 300px;
+      height: 320px;
+      margin-top: 20px;
     }
-
     .card {
       width: 160px;
       height: 240px;
       background-size: cover;
+      background-position: center;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       backface-visibility: hidden;
@@ -117,7 +111,7 @@
   <div id="open-section">
     <h2>カードを開封！</h2>
     <div id="card-area"></div>
-    <p>カードをタップしてめくろう</p>
+    <p>カードをクリックしてめくろう</p>
   </div>
 
   <script>
@@ -143,7 +137,7 @@
       for (let i = 0; i < NUM_PACKS; i++) {
         const pack = document.createElement('div');
         pack.className = 'pack';
-        pack.style.backgroundImage = `url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAMAAABbK+1nAAAABlBMVEXMzMyWlpZJmHgRAAAAX0lEQVR4nO3QsQkAMAgDQYH9d87KD2QLU1TpsuGDRkyZMiQIECRIkSJEiQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECDwX4DkFb2xJ4p5iAAAAAElFTkSuQmCC')`;
+        pack.style.backgroundImage = `url(/images/card-back-${packType}.png)`;
         carousel.appendChild(pack);
         packs.push(pack);
 
@@ -169,11 +163,7 @@
       packs.forEach((pack, i) => {
         const theta = angle * i;
         pack.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
-        if (i === selectedIndex) {
-          pack.classList.add('highlight');
-        } else {
-          pack.classList.remove('highlight');
-        }
+        pack.classList.toggle('highlight', i === selectedIndex);
       });
     }
 
@@ -188,8 +178,8 @@
       cards.forEach((num, i) => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.backgroundImage = `url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAMAAABbK+1nAAAABlBMVEXMzMyWlpZJmHgRAAAAX0lEQVR4nO3QsQkAMAgDQYH9d87KD2QLU1TpsuGDRkyZMiQIECRIkSJEiQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECDwX4DkFb2xJ4p5iAAAAAElFTkSuQmCC')`;
-        card.dataset.front = `url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAMAAABbK+1nAAAABlBMVEXMzMyWlpZJmHgRAAAAX0lEQVR4nO3QsQkAMAgDQYH9d87KD2QLU1TpsuGDRkyZMiQIECRIkSJEiQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECDwX4DkFb2xJ4p5iAAAAAElFTkSuQmCC')`; // ダミー画像
+        card.style.backgroundImage = `url(/images/card-back-${packType}.png)`;
+        card.dataset.front = `/images/${num}.png`;
         card.style.zIndex = 100 - i;
         cardArea.appendChild(card);
       });
@@ -198,13 +188,10 @@
         const cardsDOM = Array.from(cardArea.getElementsByClassName('card'));
         if (currentCard < cardsDOM.length) {
           const card = cardsDOM[currentCard];
-          card.style.transition = 'transform 0.6s';
           card.style.transform += ' rotateY(180deg)';
-
           setTimeout(() => {
-            card.style.backgroundImage = card.dataset.front;
+            card.style.backgroundImage = `url(${card.dataset.front})`;
           }, 300);
-
           card.style.zIndex = 1000 + currentCard;
           currentCard++;
         } else {
@@ -215,7 +202,7 @@
     }
 
     function getRandomCards(n) {
-      const pool = [1,2,3,4,5,6,7,8,9,10];
+      const pool = Array.from({length: 10}, (_, i) => i + 1);
       const result = [];
       while (result.length < n) {
         const r = pool[Math.floor(Math.random() * pool.length)];
@@ -224,36 +211,13 @@
       return result;
     }
 
-    // スワイプ操作
-    let startX = 0;
-    let dragging = false;
-
-    function onSwipeMove(dx) {
-      if (Math.abs(dx) > 40) {
-        if (dx < 0 && selectedIndex < NUM_PACKS - 1) rotateTo(selectedIndex + 1);
-        if (dx > 0 && selectedIndex > 0) rotateTo(selectedIndex - 1);
-        dragging = false;
+    // キーボードでカルーセル操作
+    window.addEventListener('keydown', (e) => {
+      if (carouselWrapper.style.display === 'flex') {
+        if (e.key === 'ArrowRight') rotateTo((selectedIndex + 1) % NUM_PACKS);
+        else if (e.key === 'ArrowLeft') rotateTo((selectedIndex - 1 + NUM_PACKS) % NUM_PACKS);
       }
-    }
-
-    carouselWrapper.addEventListener('mousedown', e => {
-      dragging = true;
-      startX = e.clientX;
     });
-    carouselWrapper.addEventListener('mousemove', e => {
-      if (dragging) onSwipeMove(e.clientX - startX);
-    });
-    carouselWrapper.addEventListener('mouseup', () => dragging = false);
-    carouselWrapper.addEventListener('mouseleave', () => dragging = false);
-
-    carouselWrapper.addEventListener('touchstart', e => {
-      dragging = true;
-      startX = e.touches[0].clientX;
-    });
-    carouselWrapper.addEventListener('touchmove', e => {
-      if (dragging) onSwipeMove(e.touches[0].clientX - startX);
-    });
-    carouselWrapper.addEventListener('touchend', () => dragging = false);
   </script>
 </body>
 </html>
