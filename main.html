@@ -6,20 +6,23 @@
   <style>
     body {
       margin: 0;
+      overflow: hidden;
       background: linear-gradient(to bottom right, #f0f0ff, #e0ffff);
       font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
     }
+
     h1 {
       text-align: center;
-      margin-top: 20px;
+      padding-top: 20px;
     }
+
     #pack-select {
       display: flex;
       justify-content: center;
       gap: 40px;
       margin-top: 100px;
     }
+
     .pack-button {
       font-size: 24px;
       padding: 20px 40px;
@@ -30,6 +33,7 @@
       font-weight: bold;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
+
     .pack-button.red { background-color: crimson; }
     .pack-button.blue { background-color: dodgerblue; }
 
@@ -40,6 +44,7 @@
       justify-content: center;
       align-items: center;
     }
+
     #carousel {
       width: 100%;
       height: 300px;
@@ -47,6 +52,7 @@
       transform-style: preserve-3d;
       transition: transform 0.8s ease;
     }
+
     .pack {
       width: 140px;
       height: 200px;
@@ -56,12 +62,12 @@
       transform-style: preserve-3d;
       margin: -100px 0 0 -70px;
       background-size: cover;
-      background-position: center;
       border-radius: 10px;
       transition: transform 0.6s ease;
       cursor: pointer;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
+
     .pack.highlight {
       transform: translateZ(400px) rotateY(0deg) scale(1.2) !important;
       z-index: 1000;
@@ -69,30 +75,19 @@
     }
 
     #open-section {
-      display: none;
       text-align: center;
       margin-top: 30px;
+      display: none;
     }
-    #card-area {
-      position: relative;
-      width: 100%;
-      height: 320px;
-      margin-top: 20px;
-    }
+
     .card {
+      display: inline-block;
       width: 160px;
       height: 240px;
+      margin: 10px;
       background-size: cover;
-      background-position: center;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      backface-visibility: hidden;
-      transform-style: preserve-3d;
-      transition: transform 0.6s;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
     }
   </style>
 </head>
@@ -111,7 +106,6 @@
   <div id="open-section">
     <h2>カードを開封！</h2>
     <div id="card-area"></div>
-    <p>カードをクリックしてめくろう</p>
   </div>
 
   <script>
@@ -137,7 +131,7 @@
       for (let i = 0; i < NUM_PACKS; i++) {
         const pack = document.createElement('div');
         pack.className = 'pack';
-        pack.style.backgroundImage = `url(/images/card-back-${packType}.png)`;
+        pack.style.backgroundImage = `url(images/card-back-${packType}.png)`; // 修正済み
         carousel.appendChild(pack);
         packs.push(pack);
 
@@ -163,7 +157,11 @@
       packs.forEach((pack, i) => {
         const theta = angle * i;
         pack.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
-        pack.classList.toggle('highlight', i === selectedIndex);
+        if (i === selectedIndex) {
+          pack.classList.add('highlight');
+        } else {
+          pack.classList.remove('highlight');
+        }
       });
     }
 
@@ -173,36 +171,16 @@
       cardArea.innerHTML = '';
 
       const cards = getRandomCards(3);
-      let currentCard = 0;
-
-      cards.forEach((num, i) => {
+      cards.forEach(num => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.backgroundImage = `url(/images/card-back-${packType}.png)`;
-        card.dataset.front = `/images/${num}.png`;
-        card.style.zIndex = 100 - i;
+        card.style.backgroundImage = `url(images/${num}.png)`; // 修正済み
         cardArea.appendChild(card);
       });
-
-      cardArea.onclick = () => {
-        const cardsDOM = Array.from(cardArea.getElementsByClassName('card'));
-        if (currentCard < cardsDOM.length) {
-          const card = cardsDOM[currentCard];
-          card.style.transform += ' rotateY(180deg)';
-          setTimeout(() => {
-            card.style.backgroundImage = `url(${card.dataset.front})`;
-          }, 300);
-          card.style.zIndex = 1000 + currentCard;
-          currentCard++;
-        } else {
-          document.getElementById('open-section').style.display = 'none';
-          document.getElementById('pack-select').style.display = 'flex';
-        }
-      };
     }
 
     function getRandomCards(n) {
-      const pool = Array.from({length: 10}, (_, i) => i + 1);
+      const pool = [1,2,3,4,5,6,7,8,9,10];
       const result = [];
       while (result.length < n) {
         const r = pool[Math.floor(Math.random() * pool.length)];
@@ -211,12 +189,40 @@
       return result;
     }
 
-    // キーボードでカルーセル操作
-    window.addEventListener('keydown', (e) => {
-      if (carouselWrapper.style.display === 'flex') {
-        if (e.key === 'ArrowRight') rotateTo((selectedIndex + 1) % NUM_PACKS);
-        else if (e.key === 'ArrowLeft') rotateTo((selectedIndex - 1 + NUM_PACKS) % NUM_PACKS);
+    // スワイプ・キーボード操作
+    let startX = 0;
+    let dragging = false;
+
+    function onSwipeMove(dx) {
+      if (Math.abs(dx) > 40) {
+        if (dx < 0 && selectedIndex < NUM_PACKS - 1) rotateTo(selectedIndex + 1);
+        if (dx > 0 && selectedIndex > 0) rotateTo(selectedIndex - 1);
+        dragging = false;
       }
+    }
+
+    carouselWrapper.addEventListener('mousedown', e => {
+      dragging = true;
+      startX = e.clientX;
+    });
+    carouselWrapper.addEventListener('mousemove', e => {
+      if (dragging) onSwipeMove(e.clientX - startX);
+    });
+    carouselWrapper.addEventListener('mouseup', () => dragging = false);
+    carouselWrapper.addEventListener('mouseleave', () => dragging = false);
+
+    carouselWrapper.addEventListener('touchstart', e => {
+      dragging = true;
+      startX = e.touches[0].clientX;
+    });
+    carouselWrapper.addEventListener('touchmove', e => {
+      if (dragging) onSwipeMove(e.touches[0].clientX - startX);
+    });
+    carouselWrapper.addEventListener('touchend', () => dragging = false);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' && selectedIndex < NUM_PACKS - 1) rotateTo(selectedIndex + 1);
+      if (e.key === 'ArrowLeft' && selectedIndex > 0) rotateTo(selectedIndex - 1);
     });
   </script>
 </body>
