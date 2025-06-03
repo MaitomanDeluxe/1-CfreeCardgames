@@ -131,7 +131,7 @@
       for (let i = 0; i < NUM_PACKS; i++) {
         const pack = document.createElement('div');
         pack.className = 'pack';
-        pack.style.backgroundImage = `url(images/card-back-${packType}.png)`; // 修正済み
+        pack.style.backgroundImage = `url(./images/card-back-${packType}.png)`;
         carousel.appendChild(pack);
         packs.push(pack);
 
@@ -174,7 +174,7 @@
       cards.forEach(num => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.backgroundImage = `url(images/${num}.png)`; // 修正済み
+        card.style.backgroundImage = `url(./images/${num}.png)`;
         cardArea.appendChild(card);
       });
     }
@@ -189,7 +189,7 @@
       return result;
     }
 
-    // スワイプ・キーボード操作
+    // スワイプ操作（PC / スマホ共通）
     let startX = 0;
     let dragging = false;
 
@@ -219,11 +219,6 @@
       if (dragging) onSwipeMove(e.touches[0].clientX - startX);
     });
     carouselWrapper.addEventListener('touchend', () => dragging = false);
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowRight' && selectedIndex < NUM_PACKS - 1) rotateTo(selectedIndex + 1);
-      if (e.key === 'ArrowLeft' && selectedIndex > 0) rotateTo(selectedIndex - 1);
-    });
   </script>
 </body>
 </html>
