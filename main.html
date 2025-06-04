@@ -185,12 +185,19 @@
   carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
 
   packs.forEach((pack, i) => {
-    const theta = angle * i;
-    const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
-    pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px)`;
-    if (offset === 0) pack.classList.add('highlight');
-    else pack.classList.remove('highlight');
-  });
+  const theta = angle * i;
+  const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
+
+  // 中央のカード（選択中）だけ前面・拡大
+  if (offset === 0) {
+    pack.style.transform = `rotateY(${theta}deg) translateZ(${distance + 80}px) scale(1.3)`;
+    pack.classList.add('highlight');
+  } else {
+    pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px) scale(1)`;
+    pack.classList.remove('highlight');
+  }
+});
+
 }
 
 
