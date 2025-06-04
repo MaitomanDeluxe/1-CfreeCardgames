@@ -223,7 +223,6 @@
         dragging = false;
       }
     }
-
     carouselWrapper.addEventListener('mousedown', e => { dragging = true; startX = e.clientX; });
     carouselWrapper.addEventListener('mousemove', e => { if (dragging) onSwipeMove(e.clientX - startX); });
     carouselWrapper.addEventListener('mouseup', () => dragging = false);
