@@ -1,91 +1,107 @@
+はい、承知いたしました。HTMLファイルにコメントを追加します。
+
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <title>ポケカ開封シミュレーター</title>
   <style>
+    /* ページの基本的なスタイル設定 */
     body {
       margin: 0;
-      background: linear-gradient(to bottom right, #f0f0ff, #e0ffff);
-      font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
+      background: linear-gradient(to bottom right, #f0f0ff, #e0ffff); /* 背景のグラデーション */
+      font-family: 'Segoe UI', sans-serif; /* フォントの指定 */
+      overflow: hidden; /* スクロールバーを非表示にする */
     }
+    /* タイトル（h1）のスタイル設定 */
     h1 {
-      text-align: center;
-      padding-top: 20px;
+      text-align: center; /* 中央揃え */
+      padding-top: 20px; /* 上部の余白 */
     }
+    /* パック選択エリアのスタイル設定 */
     #pack-select {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      margin-top: 100px;
+      display: flex; /* Flexboxを適用 */
+      justify-content: center; /* 水平方向の中央揃え */
+      gap: 40px; /* ボタン間の余白 */
+      margin-top: 100px; /* 上部の余白 */
     }
+    /* パック選択ボタンの共通スタイル設定 */
     .pack-button {
-      font-size: 24px;
-      padding: 20px 40px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      color: white;
-      font-weight: bold;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-size: 24px; /* フォントサイズ */
+      padding: 20px 40px; /* パディング */
+      border: none; /* ボーダーなし */
+      border-radius: 12px; /* 角丸 */
+      cursor: pointer; /* カーソルをポインターに */
+      color: white; /* 文字色 */
+      font-weight: bold; /* フォントを太く */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* 影の追加 */
     }
+    /* 赤パックボタンのスタイル設定 */
     .pack-button.red { background-color: crimson; }
+    /* 青パックボタンのスタイル設定 */
     .pack-button.blue { background-color: dodgerblue; }
 
+    /* カルーセルラッパーのスタイル設定 */
     #carousel-wrapper {
-      display: none;
-      justify-content: center;
-      align-items: center;
-      height: 500px;
-      perspective: 1000px;
+      display: none; /* 初期状態では非表示 */
+      justify-content: center; /* 水平方向の中央揃え */
+      align-items: center; /* 垂直方向の中央揃え */
+      height: 500px; /* 高さ */
+      perspective: 1000px; /* 3D遠近感の適用 */
     }
+    /* カルーセルのスタイル設定 */
     #carousel {
-      width: 100%;
-      height: 300px;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.8s ease;
+      width: 100%; /* 幅 */
+      height: 300px; /* 高さ */
+      position: relative; /* 相対位置指定 */
+      transform-style: preserve-3d; /* 子要素を3D空間に配置 */
+      transition: transform 0.8s ease; /* 変形時のアニメーション */
     }
+    /* 各パックのスタイル設定 */
     .pack {
-      width: 140px;
-      height: 200px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin: -100px 0 0 -70px;
-      background-size: cover;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      transform-style: preserve-3d;
-      transition: transform 0.6s ease;
-      cursor: pointer;
+      width: 140px; /* 幅 */
+      height: 200px; /* 高さ */
+      position: absolute; /* 絶対位置指定 */
+      top: 50%; /* 上から50%の位置 */
+      left: 50%; /* 左から50%の位置 */
+      margin: -100px 0 0 -70px; /* 中央揃えのためのネガティブマージン */
+      background-size: cover; /* 背景画像を要素に合わせて表示 */
+      border-radius: 10px; /* 角丸 */
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 影の追加 */
+      transform-style: preserve-3d; /* 子要素を3D空間に配置 */
+      transition: transform 0.6s ease; /* 変形時のアニメーション */
+      cursor: pointer; /* カーソルをポインターに */
     }
+    /* ハイライトされたパックのスタイル設定 */
     .pack.highlight {
-      transform: translateZ(400px) rotateY(0deg) scale(1.2) !important;
-      z-index: 1000;
-      box-shadow: 0 0 25px 10px gold;
+      transform: translateZ(400px) rotateY(0deg) scale(1.2) !important; /* 手前に移動、回転なし、拡大 */
+      z-index: 1000; /* 最前面に表示 */
+      box-shadow: 0 0 25px 10px gold; /* 金色の影 */
     }
 
+    /* 開封セクションのスタイル設定 */
     #open-section {
-      display: none;
-      text-align: center;
-      margin-top: 30px;
-      position: relative;
+      display: none; /* 初期状態では非表示 */
+      text-align: center; /* 中央揃え */
+      margin-top: 30px; /* 上部の余白 */
+      position: relative; /* 相対位置指定 */
     }
+    /* カード表示エリアのスタイル設定 */
     #card-area {
-      position: relative;
-      width: 100%;
-      height: 300px;
+      position: relative; /* 相対位置指定 */
+      width: 100%; /* 幅 */
+      height: 300px; /* 高さ */
     }
+    /* 各カードのスタイル設定 */
     .card {
-      width: 160px;
-      height: 240px;
-      background-size: cover;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      position: absolute;
-      left: calc(50% - 80px);
+      width: 160px; /* 幅 */
+      height: 240px; /* 高さ */
+      background-size: cover; /* 背景画像を要素に合わせて表示 */
+      border-radius: 10px; /* 角丸 */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 影の追加 */
+      position: absolute; /* 絶対位置指定 */
+      left: calc(50% - 80px); /* 水平方向の中央揃え */
     }
   </style>
 </head>
@@ -106,137 +122,183 @@
   </div>
 
   <script>
-    const NUM_PACKS = 8;
+    // 定数とDOM要素の取得
+    const NUM_PACKS = 8; // カルーセルに表示するパックの数
     const carousel = document.getElementById('carousel');
     const carouselWrapper = document.getElementById('carousel-wrapper');
     const cardArea = document.getElementById('card-area');
-    let selectedIndex = 0;
-    let packs = [];
-    let packType = 'r';
+    let selectedIndex = 0; // 現在選択されているパックのインデックス
+    let packs = []; // 生成されたパック要素を格納する配列
+    let packType = 'r'; // 選択されているパックの種類（'r'または'b'）
 
+    /**
+     * パックの種類を選択し、カルーセルを表示する関数
+     * @param {string} type - 選択されたパックの種類 ('r'または'b')
+     */
     function selectPack(type) {
-      packType = type;
-      document.getElementById('pack-select').style.display = 'none';
-      carouselWrapper.style.display = 'flex';
-      setupCarousel();
+      packType = type; // パックの種類を設定
+      document.getElementById('pack-select').style.display = 'none'; // パック選択画面を非表示に
+      carouselWrapper.style.display = 'flex'; // カルーセルを表示
+      setupCarousel(); // カルーセルのセットアップ
     }
 
+    /**
+     * カルーセルをセットアップする関数
+     * パック要素を生成し、クリックイベントを設定する
+     */
     function setupCarousel() {
-      carousel.innerHTML = '';
-      packs = [];
+      carousel.innerHTML = ''; // カルーセルの中身をクリア
+      packs = []; // パック配列をクリア
 
+      // 指定された数のパックを生成
       for (let i = 0; i < NUM_PACKS; i++) {
-        const pack = document.createElement('div');
-        pack.className = 'pack';
-        pack.style.backgroundImage = `url(./images/card-back-${packType}.png)`;
-        carousel.appendChild(pack);
-        packs.push(pack);
+        const pack = document.createElement('div'); // div要素を作成
+        pack.className = 'pack'; // 'pack'クラスを付与
+        pack.style.backgroundImage = `url(./images/card-back-${packType}.png)`; // パックの背景画像を設定
+        carousel.appendChild(pack); // カルーセルに追加
+        packs.push(pack); // packs配列に追加
 
+        // パッククリック時のイベントリスナー
         pack.addEventListener('click', () => {
-          if (i === selectedIndex) openPack();
-          else rotateTo(i);
+          if (i === selectedIndex) openPack(); // 選択中のパックなら開封
+          else rotateTo(i); // それ以外ならそのパックに回転
         });
       }
 
-      updateCarousel();
+      updateCarousel(); // カルーセルの表示を更新
     }
 
+    /**
+     * カルーセルを特定のインデックスに回転させる関数
+     * @param {number} index - 回転させたいパックのインデックス
+     */
     function rotateTo(index) {
-      selectedIndex = ((index % NUM_PACKS) + NUM_PACKS) % NUM_PACKS;
-      updateCarousel();
+      selectedIndex = ((index % NUM_PACKS) + NUM_PACKS) % NUM_PACKS; // インデックスを正規化（負の値や範囲外の値を調整）
+      updateCarousel(); // カルーセルの表示を更新
     }
 
+    /**
+     * カルーセルの表示を更新する関数
+     * 各パックの位置とスタイルを計算して適用する
+     */
     function updateCarousel() {
-      const angle = 360 / NUM_PACKS;
-      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
+      const angle = 360 / NUM_PACKS; // 各パックの間隔角度
+      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`; // カルーセル全体を回転
 
       packs.forEach((pack, i) => {
-        const theta = angle * i;
-        const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
-        const distance = 400;
+        const theta = angle * i; // 各パックの回転角度
+        const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS; // 選択中のパックからの相対オフセット
+        const distance = 400; // 回転半径
 
-        pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px)`;
-        if (offset === 0) pack.classList.add('highlight');
-        else pack.classList.remove('highlight');
+        pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px)`; // パックを回転・移動
+        if (offset === 0) pack.classList.add('highlight'); // 選択中のパックをハイライト
+        else pack.classList.remove('highlight'); // それ以外のパックのハイライトを解除
       });
     }
 
+    /**
+     * ランダムなカード番号をN枚取得する関数
+     * @param {number} n - 取得したいカードの枚数
+     * @returns {number[]} - ランダムなカード番号の配列
+     */
     function getRandomCards(n) {
-      const pool = [1,2,3,4,5,6,7,8,9,10];
+      const pool = [1,2,3,4,5,6,7,8,9,10]; // カード番号のプール
       const result = [];
       while (result.length < n) {
-        const r = pool[Math.floor(Math.random() * pool.length)];
-        if (!result.includes(r)) result.push(r);
+        const r = pool[Math.floor(Math.random() * pool.length)]; // ランダムなカード番号を取得
+        if (!result.includes(r)) result.push(r); // 重複しないように追加
       }
       return result;
     }
 
+    /**
+     * パックを開封する関数
+     * カードを表示し、クリックでめくれるようにする
+     */
     function openPack() {
-      carouselWrapper.style.display = 'none';
-      document.getElementById('open-section').style.display = 'block';
-      cardArea.innerHTML = '';
-      const cards = getRandomCards(3);
-      let currentCardIndex = 0;
-      let openedCards = [];
+      carouselWrapper.style.display = 'none'; // カルーセルを非表示に
+      document.getElementById('open-section').style.display = 'block'; // 開封セクションを表示
+      cardArea.innerHTML = ''; // カード表示エリアをクリア
+      const cards = getRandomCards(3); // ランダムなカードを3枚取得
+      let currentCardIndex = 0; // 現在めくっているカードのインデックス
+      let openedCards = []; // 開封されたカード要素を格納する配列
 
+      // 各カード要素を生成し、配置
       cards.forEach((num, index) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.style.top = `${index * 20}px`;
-        card.style.zIndex = `${100 - index}`;
-        card.style.backgroundImage = `url(./images/card-back-${packType}.png)`;
-        card.dataset.frontImage = `./images/${num}.png`;
-        cardArea.appendChild(card);
-        openedCards.push(card);
+        const card = document.createElement('div'); // div要素を作成
+        card.className = 'card'; // 'card'クラスを付与
+        card.style.top = `${index * 20}px`; // 重ねて表示するための位置調整
+        card.style.zIndex = `${100 - index}`; // 奥のカードが手前に来るようにZインデックスを設定
+        card.style.backgroundImage = `url(./images/card-back-${packType}.png)`; // カードの裏面画像を設定
+        card.dataset.frontImage = `./images/${num}.png`; // カードの表面画像をデータ属性に保存
+        cardArea.appendChild(card); // カード表示エリアに追加
+        openedCards.push(card); // openedCards配列に追加
       });
 
+      // カードエリアクリック時のイベントリスナー
       cardArea.onclick = () => {
-        if (currentCardIndex >= openedCards.length) return;
+        if (currentCardIndex >= openedCards.length) return; // 全てのカードがめくられたら何もしない
 
-        const currentCard = openedCards[currentCardIndex];
+        const currentCard = openedCards[currentCardIndex]; // 現在めくるべきカード
 
         if (!currentCard.classList.contains('flipped')) {
-          currentCard.style.backgroundImage = `url(${currentCard.dataset.frontImage})`;
-          currentCard.classList.add('flipped');
+          // カードがまだめくられていない場合
+          currentCard.style.backgroundImage = `url(${currentCard.dataset.frontImage})`; // 表面画像に切り替え
+          currentCard.classList.add('flipped'); // 'flipped'クラスを追加
         } else {
-          currentCard.style.zIndex = `${50 - currentCardIndex}`;
-          currentCard.style.top = '80px';
-          currentCard.style.pointerEvents = 'none';
-          currentCardIndex++;
+          // カードがめくられている場合（次のカードに進む）
+          currentCard.style.zIndex = `${50 - currentCardIndex}`; // めくられたカードのZインデックスを調整
+          currentCard.style.top = '80px'; // めくられたカードを少し下げる
+          currentCard.style.pointerEvents = 'none'; // クリックイベントを無効化
+          currentCardIndex++; // 次のカードへ
 
+          // 全てのカードがめくられたら、パック選択画面に戻る処理を設定
           if (currentCardIndex === openedCards.length) {
             cardArea.onclick = () => {
-              document.getElementById('pack-select').style.display = 'flex';
-              document.getElementById('open-section').style.display = 'none';
+              document.getElementById('pack-select').style.display = 'flex'; // パック選択画面を表示
+              document.getElementById('open-section').style.display = 'none'; // 開封セクションを非表示に
             };
           }
         }
       };
     }
 
-    // スワイプ処理
+    // スワイプ処理のための変数
     let startX = 0, dragging = false;
+    /**
+     * スワイプ移動時の処理
+     * @param {number} dx - X方向の移動量
+     */
     function onSwipeMove(dx) {
-      if (Math.abs(dx) > 40) {
-        if (dx < 0) rotateTo(selectedIndex + 1);
-        else rotateTo(selectedIndex - 1);
-        dragging = false;
+      if (Math.abs(dx) > 40) { // ある程度の移動量があったら
+        if (dx < 0) rotateTo(selectedIndex + 1); // 左にスワイプしたら次のパックへ
+        else rotateTo(selectedIndex - 1); // 右にスワイプしたら前のパックへ
+        dragging = false; // ドラッグ状態をリセット
       }
     }
+    // マウスダウンイベント（PCでのスワイプ開始）
     carouselWrapper.addEventListener('mousedown', e => { dragging = true; startX = e.clientX; });
+    // マウスムーブイベント（PCでのスワイプ中）
     carouselWrapper.addEventListener('mousemove', e => { if (dragging) onSwipeMove(e.clientX - startX); });
+    // マウスアップイベント（PCでのスワイプ終了）
     carouselWrapper.addEventListener('mouseup', () => dragging = false);
+    // マウスリーブイベント（PCでのスワイプ終了）
     carouselWrapper.addEventListener('mouseleave', () => dragging = false);
+    // タッチスタートイベント（スマホでのスワイプ開始）
     carouselWrapper.addEventListener('touchstart', e => { dragging = true; startX = e.touches[0].clientX; });
+    // タッチムーブイベント（スマホでのスワイプ中）
     carouselWrapper.addEventListener('touchmove', e => { if (dragging) onSwipeMove(e.touches[0].clientX - startX); });
+    // タッチエンドイベント（スマホでのスワイプ終了）
     carouselWrapper.addEventListener('touchend', () => dragging = false);
 
+    // キーボード操作（左右矢印キーでパックを回転）
     document.addEventListener('keydown', e => {
-      if (carouselWrapper.style.display === 'flex') {
-        if (e.key === 'ArrowLeft') rotateTo(selectedIndex - 1);
-        if (e.key === 'ArrowRight') rotateTo(selectedIndex + 1);
+      if (carouselWrapper.style.display === 'flex') { // カルーセル表示中の場合のみ有効
+        if (e.key === 'ArrowLeft') rotateTo(selectedIndex - 1); // 左矢印で前のパックへ
+        if (e.key === 'ArrowRight') rotateTo(selectedIndex + 1); // 右矢印で次のパックへ
       }
     });
   </script>
 </body>
 </html>
+```
