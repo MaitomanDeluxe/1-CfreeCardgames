@@ -144,26 +144,38 @@
       updateCarousel();
     }
 
-    function rotateTo(index) {
+   function rotateTo(index) {
   selectedIndex = ((index % NUM_PACKS) + NUM_PACKS) % NUM_PACKS; // 負の数にも対応
   updateCarousel();
 }
 
 
-    function updateCarousel() {
-      const angle = 360 / NUM_PACKS;
-      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
 
-      packs.forEach((pack, i) => {
-        const theta = angle * i;
-        pack.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
-        if (i === selectedIndex) {
-          pack.classList.add('highlight');
-        } else {
-          pack.classList.remove('highlight');
-        }
-      });
+  function updateCarousel() {
+  const angle = 360 / NUM_PACKS;
+  
+  // カルーセルの回転角度を設定
+  carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
+
+  packs.forEach((pack, i) => {
+    const theta = angle * i;
+    
+    // 中央のカードを前面に持ってくる
+    const distance = 400;  // カードと中心の距離
+    const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;  // カードの位置計算
+
+    // 位置と回転を変更
+    pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px)`;
+    
+    // 中央のカードにハイライトを適用
+    if (offset === 0) {
+      pack.classList.add('highlight');
+    } else {
+      pack.classList.remove('highlight');
     }
+  });
+}
+
 
     function openPack() {
       carouselWrapper.style.display = 'none';
