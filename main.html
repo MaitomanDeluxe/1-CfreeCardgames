@@ -57,12 +57,12 @@
     }
     /* 各パックのスタイル設定 */
     .pack {
-      width: 140px; /* 幅 */
-      height: 200px; /* 高さ */
+      width: 100px; /* 幅 */
+      height: 140px; /* 高さ */
       position: absolute; /* 絶対位置指定 */
       top: 50%; /* 上から50%の位置 */
       left: 50%; /* 左から50%の位置 */
-      margin: -100px 0 0 -70px; /* 中央揃えのためのネガティブマージン */
+      margin: -70px 0 0 -50px; /* 中央揃えのためのネガティブマージン */
       background-size: cover; /* 背景画像を要素に合わせて表示 */
       border-radius: 10px; /* 角丸 */
       box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 影の追加 */
@@ -179,19 +179,20 @@
      * 各パックの位置とスタイルを計算して適用する
      */
     function updateCarousel() {
-      const angle = 360 / NUM_PACKS; // 各パックの間隔角度
-      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`; // カルーセル全体を回転
+  const angle = 20; // 固定角度に調整
+  const distance = 280; // 手前に詰める
 
-      packs.forEach((pack, i) => {
-        const theta = angle * i; // 各パックの回転角度
-        const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS; // 選択中のパックからの相対オフセット
-        const distance = 400; // 回転半径
+  carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
 
-        pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px)`; // パックを回転・移動
-        if (offset === 0) pack.classList.add('highlight'); // 選択中のパックをハイライト
-        else pack.classList.remove('highlight'); // それ以外のパックのハイライトを解除
-      });
-    }
+  packs.forEach((pack, i) => {
+    const theta = angle * i;
+    const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
+    pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px)`;
+    if (offset === 0) pack.classList.add('highlight');
+    else pack.classList.remove('highlight');
+  });
+}
+
 
     /**
      * ランダムなカード番号をN枚取得する関数
