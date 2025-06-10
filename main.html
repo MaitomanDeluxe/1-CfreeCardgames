@@ -2,25 +2,41 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>パック選択</title>
+  <title>ポケポケ - パック選択</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #fefcea, #f1da36);
       height: 100vh;
+      background: linear-gradient(135deg, #fdfbfb, #ebedee);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
       font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #ff4081;
+      text-shadow: 2px 2px 0 #fff;
     }
 
     .carousel-container {
-      perspective: 1200px;
+      perspective: 1000px;
       width: 100%;
-      max-width: 900px;
-      height: 420px;
+      max-width: 800px;
+      height: 400px;
       position: relative;
     }
 
@@ -34,8 +50,8 @@
 
     .pack {
       position: absolute;
-      width: 130px;
-      height: 190px;
+      width: 120px;
+      height: 180px;
       top: 50%;
       left: 50%;
       transform-style: preserve-3d;
@@ -47,70 +63,68 @@
     .pack img {
       width: 100%;
       height: 100%;
-      border-radius: 14px;
-      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
       transition: transform 0.3s ease;
-      animation: sway 3.5s ease-in-out infinite;
     }
 
     .highlight img {
-      box-shadow: 0 0 25px 12px gold;
+      box-shadow: 0 0 20px 10px gold;
     }
 
     .nav-buttons {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
+      margin-top: 20px;
       text-align: center;
     }
 
     .nav-buttons button {
-      margin: 0 12px;
-      padding: 12px 24px;
-      font-size: 18px;
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
       border: none;
-      border-radius: 12px;
+      border-radius: 8px;
       background-color: #ff4081;
       color: white;
       cursor: pointer;
-      box-shadow: 0 5px 12px rgba(0,0,0,0.25);
-      transition: background-color 0.3s, transform 0.2s;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+      transition: background-color 0.3s;
     }
 
     .nav-buttons button:hover {
       background-color: #e91e63;
-      transform: scale(1.05);
     }
 
-    @keyframes sway {
-      0%   { transform: rotateZ(0deg) translateY(0); }
-      25%  { transform: rotateZ(1deg) translateY(-2px); }
-      50%  { transform: rotateZ(0deg) translateY(0); }
-      75%  { transform: rotateZ(-1deg) translateY(2px); }
-      100% { transform: rotateZ(0deg) translateY(0); }
+    @media (max-width: 600px) {
+      .pack {
+        width: 80px;
+        height: 120px;
+      }
     }
   </style>
 </head>
 <body>
 
+  <h1>パックを選ぼう！</h1>
+
   <div class="carousel-container">
     <div class="carousel" id="carousel">
-      <div class="pack"><img src="/images/1.png" alt="パック1"></div>
-      <div class="pack"><img src="/images/2.png" alt="パック2"></div>
-      <div class="pack"><img src="/images/3.png" alt="パック3"></div>
-      <div class="pack"><img src="/images/4.png" alt="パック4"></div>
-      <div class="pack"><img src="/images/5.png" alt="パック5"></div>
-      <div class="pack"><img src="/images/6.png" alt="パック6"></div>
-      <div class="pack"><img src="/images/7.png" alt="パック7"></div>
-      <div class="pack"><img src="/images/8.png" alt="パック8"></div>
-      <div class="pack"><img src="/images/9.png" alt="パック9"></div>
-      <div class="pack"><img src="/images/10.png" alt="パック10"></div>
+      <!-- パック画像をここに配置 -->
+      <div class="pack"><img src="/images/1.png" alt="パック1" onclick="selectPack(1)"></div>
+      <div class="pack"><img src="/images/2.png" alt="パック2" onclick="selectPack(2)"></div>
+      <div class="pack"><img src="/images/3.png" alt="パック3" onclick="selectPack(3)"></div>
+      <div class="pack"><img src="/images/4.png" alt="パック4" onclick="selectPack(4)"></div>
+      <div class="pack"><img src="/images/5.png" alt="パック5" onclick="selectPack(5)"></div>
+      <div class="pack"><img src="/images/6.png" alt="パック6" onclick="selectPack(6)"></div>
+      <div class="pack"><img src="/images/7.png" alt="パック7" onclick="selectPack(7)"></div>
+      <div class="pack"><img src="/images/8.png" alt="パック8" onclick="selectPack(8)"></div>
+      <div class="pack"><img src="/images/9.png" alt="パック9" onclick="selectPack(9)"></div>
+      <div class="pack"><img src="/images/10.png" alt="パック10" onclick="selectPack(10)"></div>
     </div>
+  </div>
 
-    <div class="nav-buttons">
-      <button onclick="prevPack()">←</button>
-      <button onclick="nextPack()">→</button>
-    </div>
+  <div class="nav-buttons">
+    <button onclick="prevPack()">←</button>
+    <button onclick="nextPack()">→</button>
   </div>
 
   <script>
@@ -127,10 +141,8 @@
         const indexOffset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
         const theta = angle * indexOffset;
 
-        pack.querySelector('img').style.animationDelay = `${(i % 5) * 0.4}s`;
-
         if (indexOffset === 0) {
-          pack.style.transform = `rotateY(${theta}deg) translateZ(${distance + 80}px) scale(1.3)`;
+          pack.style.transform = `rotateY(${theta}deg) translateZ(${distance + 100}px) scale(1.3)`;
           pack.classList.add('highlight');
         } else {
           pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px) scale(1)`;
@@ -149,6 +161,11 @@
     function nextPack() {
       selectedIndex = (selectedIndex + 1) % NUM_PACKS;
       updateCarousel();
+    }
+
+    function selectPack(num) {
+      alert(`パック${num}を選択しました！`);
+      // 実際は location.href = `open.html?pack=${num}` とかにして遷移させる
     }
 
     updateCarousel();
