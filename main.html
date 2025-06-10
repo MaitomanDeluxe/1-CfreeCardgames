@@ -147,19 +147,25 @@
     }
 
     function updateCarousel() {
-      const angle = 360 / NUM_PACKS;
-      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
+  const angle = 360 / NUM_PACKS;
+  carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
 
-      packs.forEach((pack, i) => {
-        const theta = angle * i;
-        const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
-        const distance = 400;
+  packs.forEach((pack, i) => {
+    const offset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
+    const theta = angle * i;
 
-        pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px)`;
-        if (offset === 0) pack.classList.add('highlight');
-        else pack.classList.remove('highlight');
-      });
+    if (offset === 0) {
+      // 中央のカード：真正面に固定表示
+      pack.classList.add('highlight');
+      pack.style.transform = `translateZ(400px) rotateY(0deg)`;
+    } else {
+      // 他カード：通常の回転配置
+      pack.classList.remove('highlight');
+      pack.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
     }
+  });
+}
+
 
     function getRandomCards(n) {
       const pool = [1,2,3,4,5,6,7,8,9,10];
