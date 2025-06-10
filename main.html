@@ -2,152 +2,137 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>パック選択</title>
+  <title>ポケカ開封シミュレーター</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #fefcea, #f1da36);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      background: #222;
+      color: white;
+      text-align: center;
       font-family: sans-serif;
     }
 
-    .carousel-container {
+    #pack {
+      margin-top: 50px;
+    }
+
+    .card-container {
+      display: inline-block;
       perspective: 1000px;
-      width: 100%;
-      max-width: 800px;
-      height: 400px;
+      margin: 10px;
+    }
+
+    .card {
+      width: 150px;
+      height: 210px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
       position: relative;
-    }
-
-    .carousel {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      transform-style: preserve-3d;
-      transition: transform 0.8s ease;
-    }
-
-    .pack {
-      position: absolute;
-      width: 120px;
-      height: 180px;
-      top: 50%;
-      left: 50%;
-      transform-style: preserve-3d;
-      transition: transform 0.8s ease;
-      transform-origin: center center;
       cursor: pointer;
     }
 
-    .pack img {
+    .flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
       width: 100%;
       height: 100%;
-      border-radius: 12px;
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
     }
 
-    .highlight img {
-      box-shadow: 0 0 20px 10px gold;
+    .card-back {
+      background: #fff;
+      transform: rotateY(0deg);
     }
 
-    .nav-buttons {
-      position: absolute;
-      bottom: 20px;
+    .card-front {
+      transform: rotateY(180deg);
+    }
+
+    .card-face img {
       width: 100%;
-      text-align: center;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
     }
 
-    .nav-buttons button {
-      margin: 0 10px;
+    #open-button {
       padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      background-color: #ff4081;
-      color: white;
+      margin-top: 30px;
+      font-size: 20px;
       cursor: pointer;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-      transition: background-color 0.3s;
     }
 
-    .nav-buttons button:hover {
-      background-color: #e91e63;
+    .hidden {
+      display: none;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
 <body>
 
-  <div class="carousel-container">
-    <div class="carousel" id="carousel">
-      <!-- パック画像をここに配置 -->
-      <div class="pack"><img src="/images/1.png" alt="パック1"></div>
-      <div class="pack"><img src="/images/2.png" alt="パック2"></div>
-      <div class="pack"><img src="/images/3.png" alt="パック3"></div>
-      <div class="pack"><img src="/images/4.png" alt="パック4"></div>
-      <div class="pack"><img src="/images/5.png" alt="パック5"></div>
-      <div class="pack"><img src="/images/6.png" alt="パック6"></div>
-      <div class="pack"><img src="/images/7.png" alt="パック7"></div>
-      <div class="pack"><img src="/images/8.png" alt="パック8"></div>
-      <div class="pack"><img src="/images/9.png" alt="パック9"></div>
-      <div class="pack"><img src="/images/10.png" alt="パック10"></div>
-    </div>
-
-    <div class="nav-buttons">
-      <button onclick="prevPack()">←</button>
-      <button onclick="nextPack()">→</button>
-    </div>
-  </div>
+  <h1>ポケカ風開封シミュレーター</h1>
+  <button id="open-button">パックを開ける！</button>
+  <div id="pack"></div>
 
   <script>
-    const carousel = document.getElementById('carousel');
-    const packs = carousel.querySelectorAll('.pack');
-    const NUM_PACKS = packs.length;
-    let selectedIndex = 0;
+    const totalCards = 10;
+    const packSize = 3;
 
-    const angle = 360 / NUM_PACKS;
-    const distance = 250; // 近づけたいときは小さくする
+    function getRandomCards(count) {
+      const cards = new Set();
+      while (cards.size < count) {
+        const rand = Math.floor(Math.random() * totalCards) + 1;
+        cards.add(rand);
+      }
+      return Array.from(cards);
+    }
 
-    function updateCarousel() {
-      packs.forEach((pack, i) => {
-        const indexOffset = (i - selectedIndex + NUM_PACKS) % NUM_PACKS;
-        const theta = angle * indexOffset;
+    document.getElementById('open-button').addEventListener('click', () => {
+      const pack = document.getElementById('pack');
+      pack.innerHTML = '';
+      const randomCards = getRandomCards(packSize);
 
-        if (indexOffset === 0) {
-          pack.style.transform = `rotateY(${theta}deg) translateZ(${distance + 80}px) scale(1.3)`;
-          pack.classList.add('highlight');
-        } else {
-          pack.style.transform = `rotateY(${theta}deg) translateZ(${distance}px) scale(1)`;
-          pack.classList.remove('highlight');
-        }
+      randomCards.forEach(cardNum => {
+        const container = document.createElement('div');
+        container.className = 'card-container fade-in';
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const front = document.createElement('div');
+        front.className = 'card-face card-front';
+        const frontImg = document.createElement('img');
+        frontImg.src = `./images/${cardNum}.png`;
+        front.appendChild(frontImg);
+
+        const back = document.createElement('div');
+        back.className = 'card-face card-back';
+        const backImg = document.createElement('img');
+        backImg.src = './images/card-back.png';
+        back.appendChild(backImg);
+
+        card.appendChild(front);
+        card.appendChild(back);
+        container.appendChild(card);
+        pack.appendChild(container);
+
+        // めくりイベント
+        card.addEventListener('click', () => {
+          card.classList.toggle('flipped');
+        });
       });
-
-      // carousel自体も回転（オプション）
-      carousel.style.transform = `rotateY(${-angle * selectedIndex}deg)`;
-    }
-
-    function prevPack() {
-      selectedIndex = (selectedIndex - 1 + NUM_PACKS) % NUM_PACKS;
-      updateCarousel();
-    }
-
-    function nextPack() {
-      selectedIndex = (selectedIndex + 1) % NUM_PACKS;
-      updateCarousel();
-    }
-
-    // 初期表示
-    updateCarousel();
-
-    // キーボード操作対応
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') prevPack();
-      if (e.key === 'ArrowRight') nextPack();
     });
   </script>
 </body>
